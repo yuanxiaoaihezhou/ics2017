@@ -57,52 +57,47 @@ static int cmd_si(char *args)
   return 0;
 }
 
-static int cmd_info(char *args)
-{
-  char *arg = strtok(NULL, " ");
-  if (arg == NULL)
-  {
-    printf("args error: No args\n");
-    return 0;
-  }
-  char s;
-  int nRet = sscanf(args, "%c", &s);
-  if (nRet <= 0)
-  {
-    printf("args error: Analysis failed\n");
-    return 0;
-  }
-  if (s == 'r')
-  {
-    int i;
-    for (i = 0; i < 8; i++)
-    {
-      printf("%s        0x%x\n", regsl[i], reg_l(i));
+static int cmd_info(char *args) {
+    char *arg = strtok(NULL, " ");
+    if (arg == NULL) {
+        printf("args error: No args\n");
+        return 0;
     }
-    printf("eip        0x%x\n", cpu.eip);
-    for (i = 0; i < 8; i++)
-    {
-      printf("%s        0x%x\n", regsw[i], reg_w(i));
+    char s;
+    int nRet = sscanf(args, "%c", &s);
+    if (nRet <= 0) {
+        printf("args error: Analysis failed\n");
+        return 0;
     }
-    for (i = 0; i < 8; i++)
-    {
-      printf("%s        0x%x\n", regsb[i], reg_b(i));
+    if (s == 'r') {
+        int i;
+        // 32位通用寄存器
+        printf("General-purpose registers (32-bit):\n");
+        for (i = 0; i < 8; i++) {
+            printf("  %-3s = 0x%08x\n", regsl[i], reg_l(i));
+        }
+        // 指令指针
+        printf("Instruction pointer:\n");
+        printf("  %-3s = 0x%08x\n", "eip", cpu.eip);
+        // 16位段寄存器
+        printf("Segment registers (16-bit):\n");
+        for (i = 0; i < 8; i++) {
+            printf("  %-3s = 0x%04x\n", regsw[i], reg_w(i));
+        }
+        // 8位字节寄存器
+        printf("Byte registers (8-bit):\n");
+        for (i = 0; i < 8; i++) {
+            printf("  %-3s = 0x%02x\n", regsb[i], reg_b(i));
+        }
+    } else if (s == 'w') {
+        Log("TODO");
+        // info_watchpoint();
+    } else {
+        printf("args error: Unknown arg\n");
+        return 0;
     }
-  }
-  else if (s == 'w')
-  {
-    Log("TODO");
-    // info_watchpoint();
-  }
-  else
-  {
-    printf("args error: Unknown arg\n");
     return 0;
-  }
-  return 0;
 }
-
-
 
 static struct
 {
