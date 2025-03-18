@@ -98,6 +98,29 @@ static int cmd_info(char *args) {
     return 0;
 }
 
+static int cmd_x(char *args) {
+    char *num_str = strtok(NULL, " ");
+    char *addr_str = strtok(NULL, " ");
+    
+    if (!num_str || !addr_str) {
+        printf("Usage: x N EXPR\n"
+               "  N: number of consecutive bytes to display\n"
+               "  EXPR: hexadecimal starting address (e.g. 0x1000)\n");
+        return 0;
+    }
+
+    int num_bytes = atoi(num_str);
+    uint32_t addr = strtoul(addr_str, NULL, 16);
+
+    for (int i = 0; i < num_bytes; i++) {
+        printf("0x%02x ", vaddr_read(addr + i, 1));
+        if ((i + 1) % 16 == 0) printf("\n"); 
+    }
+    
+    if (num_bytes % 16 != 0) printf("\n");  
+    return 0;
+}
+
 static struct
 {
   char *name;
@@ -110,7 +133,7 @@ static struct
     /* TODO: Add more commands */
     {"si", "Execute N instructions step by step, default N=1", cmd_si},
     {"info", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info},
-	{ "x", "Scan the consecutive 4N bytes from Address expr", cmd_si},
+	{ "x", "Scan the consecutive 4N bytes from Address expr", cmd_x},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
