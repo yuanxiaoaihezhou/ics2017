@@ -94,6 +94,11 @@ static int cmd_info(char *args)
     Log("TODO");
     // info_watchpoint();
   }
+  else
+  {
+    printf("args error: Unknown arg\n");
+    return 0;
+  }
   return 0;
 }
 
