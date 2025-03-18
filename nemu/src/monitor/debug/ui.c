@@ -71,21 +71,21 @@ static int cmd_info(char *args) {
     }
     if (s == 'r') {
         int i;
-        // 32位通用寄存器
-        printf("General-purpose registers (32-bit):\n");
+        // 32位寄存器
+        printf("32-bit registers:\n");
         for (i = 0; i < 8; i++) {
             printf("  %-3s = 0x%08x\n", regsl[i], reg_l(i));
         }
         // 指令指针
         printf("Instruction pointer:\n");
         printf("  %-3s = 0x%08x\n", "eip", cpu.eip);
-        // 16位段寄存器
-        printf("Segment registers (16-bit):\n");
+        // 16位寄存器
+        printf("16-bit registers:\n");
         for (i = 0; i < 8; i++) {
             printf("  %-3s = 0x%04x\n", regsw[i], reg_w(i));
         }
-        // 8位字节寄存器
-        printf("Byte registers (8-bit):\n");
+        // 8位寄存器
+        printf("8-bit registers:\n");
         for (i = 0; i < 8; i++) {
             printf("  %-3s = 0x%02x\n", regsb[i], reg_b(i));
         }
@@ -95,6 +95,47 @@ static int cmd_info(char *args) {
     } else {
         printf("args error: Unknown arg\n");
         return 0;
+    }
+    return 0;
+}
+
+static int cmd_info1(char *args) {
+    char *arg = strtok(args, " ");
+    if (!arg) {
+        printf("args error: No args\n");
+        return 0;
+    }
+
+    if (strlen(arg) != 1 || (*arg != 'r' && *arg != 'w')) {
+        printf("args error: Invalid argument\n");
+        return 0;
+    }
+
+    switch (*arg) {
+        case 'r': {
+            int i;
+            printf("32-bit registers:\n");
+            for (i = 0; i < 8; i++) {
+                printf("  %-3s = 0x%08x\n", regsl[i], reg_l(i));
+            }
+            printf("Instruction pointer:\n  %-3s = 0x%08x\n", "eip", cpu.eip);
+            printf("16-bit registers:\n");
+            for (i = 0; i < 8; i++) {
+                printf("  %-3s = 0x%04x\n", regsw[i], reg_w(i));
+            }
+            printf("8-bit registers:\n");
+            for (i = 0; i < 8; i++) {
+                printf("  %-3s = 0x%02x\n", regsb[i], reg_b(i));
+            }
+            break;
+        }
+        case 'w':
+            Log("TODO");
+            // info_watchpoint();
+            break;
+        default:
+            printf("args error: Unknown arg\n");
+            return 0;
     }
     return 0;
 }
@@ -111,7 +152,7 @@ static struct
     /* TODO: Add more commands */
     {"si", "Execute N instructions step by step, default N=1", cmd_si},
     {"info", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info},
-
+    {"info1", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info1},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
