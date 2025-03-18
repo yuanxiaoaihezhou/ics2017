@@ -115,7 +115,7 @@ static int cmd_x(char *args) {
     for (int i = 0; i < num_bytes * 4; i += 4) {
         printf("0x%08x\t", addr + i); 
 
-        for (int j = 0; j < 4 && i + j < num_bytes; j++) {
+        for (int j = 0; j < 4 && i + j < num_bytes * 4; j++) {
             printf("0x%02x ", vaddr_read(addr + i + j, 1));
         }
         printf("\n");
