@@ -49,17 +49,36 @@ static int8_t preced[][TK_EOS_ - TK_NOTYPE] = {
 	/* TK_OR    */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '>', '<', '<', '<', '>', '<', '<', '<', '>'},
 	/* TK_PLUS  */ {'<', '<', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '<', '<', '>'},
 	/* TK_SUB   */ {'<', '<', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '<', '<', '>'},
-	/* TK_LPARE */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', '<', '<',  0,},
+	/* TK_LPARE */ {
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'<',
+		'=',
+		'<',
+		'<',
+		'<',
+		0,
+	},
 	/* TK_RPARE */ {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '=', '>', '>', '>', '>', '>'},
 	/* TK_MUL   */ {'<', '<', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '>', '>', '<', '>'},
 	/* TK_DIV   */ {'<', '<', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '>', '>', '<', '>'},
 	/* TK_NOT   */ {'<', '<', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '>', '>', '<', '>'},
-	/* TK_EOS_  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<',  0, '<',  '<', '<', '='},
+	/* TK_EOS_  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', 0, '<', '<', '<', '='},
 };
 
 static int8_t op_preced(int op1, int op2)
 {
-	return preced[op1-TK_NOTYPE-1][op2-TK_NOTYPE-1];
+	return preced[op1 - TK_NOTYPE - 1][op2 - TK_NOTYPE - 1];
 }
 
 static struct rule
@@ -72,26 +91,26 @@ static struct rule
    * Pay attention to the precedence level of different rules.
    */
 
-	{" +", TK_NOTYPE},				
-  	{"\\(", TK_LPARE},
- 	{"\\)", TK_RPARE},
+	{" +", TK_NOTYPE},
+	{"\\(", TK_LPARE},
+	{"\\)", TK_RPARE},
 	{"\\+", TK_PLUS},
 	{"-", TK_SUB},
 	{"\\*", TK_MUL},
 	{"/", TK_DIV},
-	{"==", TK_EQ},						
-	{"!=", TK_NEQ},					  
-	{"<=", TK_LE},						
-	{">=", TK_GE},						
-  	{">", TK_GT},
-  	{"<", TK_LT},
+	{"==", TK_EQ},
+	{"!=", TK_NEQ},
+	{"<=", TK_LE},
+	{">=", TK_GE},
+	{">", TK_GT},
+	{"<", TK_LT},
 	{"&&", TK_AND},
 	{"\\|\\|", TK_OR},
-  	{"!", TK_NOT},                     
-  	{"\\$[a-zA-Z]+", TK_REG},          
-  	{"0x[0-9a-fA-F]+", TK_HEX},
-  	{"0[0-7]+", TK_OCT},
-  	{"[0-9]+", TK_DEC},
+	{"!", TK_NOT},
+	{"\\$[a-zA-Z]+", TK_REG},
+	{"0x[0-9a-fA-F]+", TK_HEX},
+	{"0[0-7]+", TK_OCT},
+	{"[0-9]+", TK_DEC},
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
@@ -154,23 +173,36 @@ static bool make_token(char *e)
          * of tokens, some extra actions should be performed.
          */
 
-				switch (rules[i].token_type) {
-          case TK_NOTYPE: break;
-          default:
-            tokens[nr_token].str[0] = '\0';
-            strncat(tokens[nr_token].str, substr_start,
-              (substr_len < sizeof(tokens[nr_token].str))
-              ? substr_len : sizeof(tokens[nr_token].str));
-            /* through down */
-          case TK_EQ: case TK_NEQ: case TK_LE:
-          case TK_GE: case TK_AND: case TK_OR:
-          case TK_PLUS: case TK_SUB: case TK_LPARE:
-          case TK_RPARE: case TK_MUL:
-          case TK_DIV: case TK_LT: case TK_GT:
-          case TK_NOT: case TK_EOS_:
-            tokens[nr_token].type = rules[i].token_type;
-            nr_token++;
-        }
+				switch (rules[i].token_type)
+				{
+				case TK_NOTYPE:
+					break;
+				default:
+					tokens[nr_token].str[0] = '\0';
+					strncat(tokens[nr_token].str, substr_start,
+							(substr_len < sizeof(tokens[nr_token].str))
+								? substr_len
+								: sizeof(tokens[nr_token].str));
+					/* through down */
+				case TK_EQ:
+				case TK_NEQ:
+				case TK_LE:
+				case TK_GE:
+				case TK_AND:
+				case TK_OR:
+				case TK_PLUS:
+				case TK_SUB:
+				case TK_LPARE:
+				case TK_RPARE:
+				case TK_MUL:
+				case TK_DIV:
+				case TK_LT:
+				case TK_GT:
+				case TK_NOT:
+				case TK_EOS_:
+					tokens[nr_token].type = rules[i].token_type;
+					nr_token++;
+				}
 
 				break;
 			}
@@ -188,136 +220,216 @@ static bool make_token(char *e)
 
 static bool is_op(int type)
 {
-  	if (type > TK_NOTYPE && type <= TK_EOS_)
-    	return true;
+	if (type > TK_NOTYPE && type <= TK_EOS_)
+		return true;
 	return false;
 }
 
 static uint32_t operate(int op, uint32_t obj1, uint32_t obj2)
 {
-  	switch (op) {
-    	case TK_DEREF_:    return vaddr_read(obj1, 4);
-    	case TK_NEG_:      return -obj1;
-    	case TK_NOT:       return !obj1;
-    	case TK_MUL:       return obj1 * obj2;
-    	case TK_DIV:       return obj1 / obj2;
-    	case TK_PLUS:      return obj1 + obj2;
-    	case TK_SUB:       return obj1 - obj2;
-    	case TK_EQ:        return obj1 == obj2;
-    	case TK_NEQ:       return obj1 != obj2;
-    	case TK_LE:        return obj1 <= obj2;
-    	case TK_GE:        return obj1 >= obj2;
-    	case TK_LT:        return obj1 < obj2;
-    	case TK_GT:        return obj1 > obj2;
-    	case TK_AND:       return obj1 && obj2;
-    	case TK_OR:        return obj1 || obj2;
-   		default:           return 0;
-  }
+	switch (op)
+	{
+	case TK_DEREF_:
+		return vaddr_read(obj1, 4);
+	case TK_NEG_:
+		return -obj1;
+	case TK_NOT:
+		return !obj1;
+	case TK_MUL:
+		return obj1 * obj2;
+	case TK_DIV:
+		return obj1 / obj2;
+	case TK_PLUS:
+		return obj1 + obj2;
+	case TK_SUB:
+		return obj1 - obj2;
+	case TK_EQ:
+		return obj1 == obj2;
+	case TK_NEQ:
+		return obj1 != obj2;
+	case TK_LE:
+		return obj1 <= obj2;
+	case TK_GE:
+		return obj1 >= obj2;
+	case TK_LT:
+		return obj1 < obj2;
+	case TK_GT:
+		return obj1 > obj2;
+	case TK_AND:
+		return obj1 && obj2;
+	case TK_OR:
+		return obj1 || obj2;
+	default:
+		return 0;
+	}
 }
 
 static uint32_t eval(bool *success)
 {
-  static int op_stack[32];
-  static uint32_t obj_stack[32];
-  int obj_i = 0, op_i = 0;
-  int token_type, i;
-  int op;
-  uint32_t o1, o2;
+	static int op_stack[32];
+	static uint32_t obj_stack[32];
+	int obj_i = 0, op_i = 0;
+	int token_type, i;
+	int op;
+	uint32_t o1, o2;
 
-  *success = true;
+	*success = true;
 
-  do { op_stack[op_i++] = (TK_EOS_); } while (0);
+	do
+	{
+		op_stack[op_i++] = (TK_EOS_);
+	} while (0);
 
-  tokens[nr_token].type = TK_EOS_;
-  nr_token++;
-  
-  for (i = 0; 
-       (op_stack[op_i-1] != TK_EOS_) || tokens[i].type != TK_EOS_; 
-      ) {
-    if (is_op((token_type = tokens[i].type))) {
+	tokens[nr_token].type = TK_EOS_;
+	nr_token++;
 
-      if (i == 0 || is_op(tokens[i-1].type)) {
-        if (token_type == TK_SUB && tokens[i-1].type != TK_RPARE) {
-          token_type = TK_NEG_;
-        }
-        else if (token_type == TK_MUL && tokens[i-1].type != TK_RPARE) {
-          token_type = TK_DEREF_;
-        } else if (token_type != TK_LPARE && tokens[i-1].type != TK_RPARE){
-          *success = false;
-          return -1;
-        }
-      }
+	for (i = 0;
+		 (op_stack[op_i - 1] != TK_EOS_) || tokens[i].type != TK_EOS_;)
+	{
+		if (is_op((token_type = tokens[i].type)))
+		{
 
-      switch (op_preced(
-          (op_stack[op_i-1]), token_type)) {
-        case '<':
-          do { op_stack[op_i++] = (token_type); } while (0);
-          i++;
-          break;
-        case '>':
-          op = (op_stack[op_i-1]);
-          do { --op_i; } while (0);
-          if (op == TK_NOT || op == TK_NEG_ || op == TK_DEREF_) {
-            do { o1 = obj_stack[--obj_i]; } while (0);
-            do { obj_stack[obj_i++] = (operate(op, o1, 0)); } while (0);
-          } else {
-            do { o2 = obj_stack[--obj_i]; } while (0);
-            do { o1 = obj_stack[--obj_i]; } while (0);
-            do { obj_stack[obj_i++] = (operate(op, o1, o2)); } while (0);
-          }
-          break;
-        case '=':
-          do { --op_i; } while (0);
-          i++;
-          break;
-        default:
-          *success = false;
-          return -1;
-      }
-    } else if (token_type == TK_REG) {
-      int j;
-      const char *reg = tokens[i++].str + 1; /* skip '$' */
-      /* GPR */
-      for (j = R_EAX; j <= R_EDI; j++) {
-        if (strcmp(regsl[j], reg) == 0) {  /* skip '$' */
-          do { obj_stack[obj_i++] = (reg_l(j)); } while (0);
-          break;
-        }
-      }
-      if (j <= R_EDI)
-        continue;
-      for (j = R_AX; j <= R_DI; j++) {
-        if (strcmp(regsw[j], reg) == 0) {  /* skip '$' */
-          do { obj_stack[obj_i++] = (reg_w(j)); } while (0);
-          break;
-        }
-      }
-      if (j <= R_DI)
-        continue;
-      for (j = R_AL; j <= R_BH; j++) {
-        if (strcmp(regsb[j], reg) == 0) {  /* skip '$' */
-          do { obj_stack[obj_i++] = (reg_b(j)); } while (0);
-          break;
-        }
-      }
-      if (j <= R_DI)
-        continue;
-      /* EIP */
-      if (strcmp("eip", reg) == 0) {
-        do { obj_stack[obj_i++] = (cpu.eip); } while (0);
-        continue;
-      }
+			if (i == 0 || is_op(tokens[i - 1].type))
+			{
+				if (token_type == TK_SUB && tokens[i - 1].type != TK_RPARE)
+				{
+					token_type = TK_NEG_;
+				}
+				else if (token_type == TK_MUL && tokens[i - 1].type != TK_RPARE)
+				{
+					token_type = TK_DEREF_;
+				}
+				else if (token_type != TK_LPARE && tokens[i - 1].type != TK_RPARE)
+				{
+					*success = false;
+					return -1;
+				}
+			}
 
-      *success = false;
-      return 0;
-    } else {
-      int j;
-      sscanf(tokens[i].str, "%i", &j);
-      do { obj_stack[obj_i++] = (j); } while (0);
-      i++;
-    }
-  }
-  return obj_stack[0];
+			switch (op_preced(
+				(op_stack[op_i - 1]), token_type))
+			{
+			case '<':
+				do
+				{
+					op_stack[op_i++] = (token_type);
+				} while (0);
+				i++;
+				break;
+			case '>':
+				op = (op_stack[op_i - 1]);
+				do
+				{
+					--op_i;
+				} while (0);
+				if (op == TK_NOT || op == TK_NEG_ || op == TK_DEREF_)
+				{
+					do
+					{
+						o1 = obj_stack[--obj_i];
+					} while (0);
+					do
+					{
+						obj_stack[obj_i++] = (operate(op, o1, 0));
+					} while (0);
+				}
+				else
+				{
+					do
+					{
+						o2 = obj_stack[--obj_i];
+					} while (0);
+					do
+					{
+						o1 = obj_stack[--obj_i];
+					} while (0);
+					do
+					{
+						obj_stack[obj_i++] = (operate(op, o1, o2));
+					} while (0);
+				}
+				break;
+			case '=':
+				do
+				{
+					--op_i;
+				} while (0);
+				i++;
+				break;
+			default:
+				*success = false;
+				return -1;
+			}
+		}
+		else if (token_type == TK_REG)
+		{
+			int j;
+			const char *reg = tokens[i++].str + 1; /* skip '$' */
+			/* GPR */
+			for (j = R_EAX; j <= R_EDI; j++)
+			{
+				if (strcmp(regsl[j], reg) == 0)
+				{ /* skip '$' */
+					do
+					{
+						obj_stack[obj_i++] = (reg_l(j));
+					} while (0);
+					break;
+				}
+			}
+			if (j <= R_EDI)
+				continue;
+			for (j = R_AX; j <= R_DI; j++)
+			{
+				if (strcmp(regsw[j], reg) == 0)
+				{ /* skip '$' */
+					do
+					{
+						obj_stack[obj_i++] = (reg_w(j));
+					} while (0);
+					break;
+				}
+			}
+			if (j <= R_DI)
+				continue;
+			for (j = R_AL; j <= R_BH; j++)
+			{
+				if (strcmp(regsb[j], reg) == 0)
+				{ /* skip '$' */
+					do
+					{
+						obj_stack[obj_i++] = (reg_b(j));
+					} while (0);
+					break;
+				}
+			}
+			if (j <= R_DI)
+				continue;
+			/* EIP */
+			if (strcmp("eip", reg) == 0)
+			{
+				do
+				{
+					obj_stack[obj_i++] = (cpu.eip);
+				} while (0);
+				continue;
+			}
+
+			*success = false;
+			return 0;
+		}
+		else
+		{
+			int j;
+			sscanf(tokens[i].str, "%i", &j);
+			do
+			{
+				obj_stack[obj_i++] = (j);
+			} while (0);
+			i++;
+		}
+	}
+	return obj_stack[0];
 }
 
 uint32_t expr(char *e, bool *success)
