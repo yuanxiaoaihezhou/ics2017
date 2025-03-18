@@ -59,48 +59,6 @@ static int cmd_si(char *args)
 
 static int cmd_info(char *args) {
     char *arg = strtok(NULL, " ");
-    if (arg == NULL) {
-        printf("args error: No args\n");
-        return 0;
-    }
-    char s;
-    int nRet = sscanf(args, "%c", &s);
-    if (nRet <= 0) {
-        printf("args error: Analysis failed\n");
-        return 0;
-    }
-    if (s == 'r') {
-        int i;
-        // 32位寄存器
-        printf("32-bit registers:\n");
-        for (i = 0; i < 8; i++) {
-            printf("  %-3s = 0x%08x\n", regsl[i], reg_l(i));
-        }
-        // 指令指针
-        printf("Instruction pointer:\n");
-        printf("  %-3s = 0x%08x\n", "eip", cpu.eip);
-        // 16位寄存器
-        printf("16-bit registers:\n");
-        for (i = 0; i < 8; i++) {
-            printf("  %-3s = 0x%04x\n", regsw[i], reg_w(i));
-        }
-        // 8位寄存器
-        printf("8-bit registers:\n");
-        for (i = 0; i < 8; i++) {
-            printf("  %-3s = 0x%02x\n", regsb[i], reg_b(i));
-        }
-    } else if (s == 'w') {
-        Log("TODO");
-        // info_watchpoint();
-    } else {
-        printf("args error: Unknown arg\n");
-        return 0;
-    }
-    return 0;
-}
-
-static int cmd_info1(char *args) {
-    char *arg = strtok(args, " ");
     if (!arg) {
         printf("args error: No args\n");
         return 0;
@@ -152,7 +110,7 @@ static struct
     /* TODO: Add more commands */
     {"si", "Execute N instructions step by step, default N=1", cmd_si},
     {"info", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info},
-    {"info1", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info1},
+	{ "x", "Scan the consecutive 4N bytes from Address expr", cmd_si},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
