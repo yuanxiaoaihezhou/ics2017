@@ -165,13 +165,18 @@ static int cmd_w(char *args)
 {
     bool success;
     uint32_t val;
+    char *errorMessage = NULL;
 
-    if (args == NULL)
+    if (args == NULL) {
+        errorMessage = "Missing expression";
         goto err;
+    }
 
     val = expr(args, &success);
-    if (!success)
+    if (!success) {
+        errorMessage = "Invalid expression";
         goto err;
+    }
 
     WP *wp = new_wp();
     wp->expr = strdup(args);
@@ -180,7 +185,11 @@ static int cmd_w(char *args)
     return 0;
 
 err:
-    printf("Invalid expression\n");
+    if (errorMessage) {
+        printf("%s\n", errorMessage);
+    } else {
+        printf("An unknown error occurred\n");
+    }
     return 0;
 }
 
