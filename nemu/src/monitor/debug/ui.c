@@ -96,8 +96,7 @@ static int cmd_info(char *args)
         break;
     }
     case 'w':
-        Log("TODO");
-        // info_watchpoint();
+        print_wp();
         break;
     default:
         printf("args error: Unknown arg\n");
