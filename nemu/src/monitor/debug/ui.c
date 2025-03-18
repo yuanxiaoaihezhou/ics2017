@@ -126,6 +126,7 @@ static int cmd_x(char *args)
     if(!success)
     {
         printf("Wrong expr");
+        return 0;
     }
     for (int i = 0; i < num_bytes * 4; i += 4)
     {
