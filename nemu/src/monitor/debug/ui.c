@@ -101,7 +101,7 @@ static int cmd_info(char *args) {
 static int cmd_x(char *args) {
     char *num_str = strtok(NULL, " ");
     char *addr_str = strtok(NULL, " ");
-    
+
     if (!num_str || !addr_str) {
         printf("Usage: x N EXPR\n"
                "  N: number of consecutive bytes to display\n"
@@ -112,12 +112,15 @@ static int cmd_x(char *args) {
     int num_bytes = atoi(num_str);
     uint32_t addr = strtoul(addr_str, NULL, 16);
 
-    for (int i = 0; i < num_bytes; i++) {
-        printf("0x%02x ", vaddr_read(addr + i, 1));
-        if ((i + 1) % 16 == 0) printf("\n"); 
+    for (int i = 0; i < num_bytes; i += 4) {
+        printf("0x%08x\t", addr + i); 
+
+        for (int j = 0; j < 4 && i + j < num_bytes; j++) {
+            printf("0x%02x ", vaddr_read(addr + i + j, 1));
+        }
+        printf("\n");
     }
-    
-    if (num_bytes % 16 != 0) printf("\n");  
+
     return 0;
 }
 
