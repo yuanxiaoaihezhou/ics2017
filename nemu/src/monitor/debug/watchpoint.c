@@ -68,7 +68,7 @@ bool wp_has_changed()
         {
             printf("\nWatchpoint %d: %s\n", p->NO, p->expr);
             printf("  Old value: %u\n", p->old_value);
-            printf("  New value: %u\n", new_val);
+            printf("  New value: %u\n\n", new_val);
 
             p->old_value = new_val;
             has_changed = true;
