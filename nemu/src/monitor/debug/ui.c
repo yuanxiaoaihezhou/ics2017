@@ -112,7 +112,7 @@ static int cmd_x(char *args) {
     int num_bytes = atoi(num_str);
     uint32_t addr = strtoul(addr_str, NULL, 16);
 
-    for (int i = 0; i < num_bytes; i += 4) {
+    for (int i = 0; i < num_bytes * 4; i += 4) {
         printf("0x%08x\t", addr + i); 
 
         for (int j = 0; j < 4 && i + j < num_bytes; j++) {
