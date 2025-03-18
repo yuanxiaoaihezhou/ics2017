@@ -104,21 +104,17 @@ static int cmd_x(char *args) {
 
     if (!num_str || !addr_str) {
         printf("Usage: x N EXPR\n"
-               "  N: number of consecutive bytes to display\n"
-               "  EXPR: hexadecimal starting address (e.g. 0x1000)\n");
+               "  N: number of consecutive 4-byte words to display\n"
+               "  EXPR: hexadecimal starting address (e.g. 0x100000)\n");
         return 0;
     }
 
-    int num_bytes = atoi(num_str);
+    int num_words = atoi(num_str);
     uint32_t addr = strtoul(addr_str, NULL, 16);
 
-    for (int i = 0; i < num_bytes; i += 4) {
-        printf("0x%08x\t", addr + i); 
-
-        for (int j = 0; j < 4 && i + j < num_bytes; j++) {
-            printf("0x%02x ", vaddr_read(addr + i + j, 1));
-        }
-        printf("\n");
+    for (int i = 0; i < num_words; i++) {
+        uint32_t value = vaddr_read(addr + i * 4, 1);
+        printf("0x%08x: 0x%08x\n", addr + i * 4, value);
     }
 
     return 0;
