@@ -109,8 +109,8 @@ static struct
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
     /* TODO: Add more commands */
-    {"si", "Let the program execute N instructions step by step, default N=1", cmd_si},
-    {"info", "Print regs' status for r, checkpoint informations for w", cmd_info},
+    {"si", "Execute N instructions step by step, default N=1", cmd_si},
+    {"info", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info},
 
 };
 
