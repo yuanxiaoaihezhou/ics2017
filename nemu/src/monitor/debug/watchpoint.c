@@ -20,4 +20,11 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 
-
+WP *new_wp() {
+  Assert(free_, "WP pool is full");
+  WP *temp = free_;
+  free_ = free_->next;
+  temp->next = head;
+  head = temp;
+  return temp;
+}
