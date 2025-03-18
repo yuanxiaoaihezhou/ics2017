@@ -52,22 +52,30 @@ void free_wp(WP *wp)
 bool wp_has_changed()
 {
     WP *p;
-    uint32_t new;
+    uint32_t new_val;
     bool success;
     bool has_changed = false;
 
-    for (p = head; p; p = p->next)
+    for (p = head; p != NULL; p = p->next)
     {
-        new = expr(p->expr, &success);
-        Assert(success, "Invalid expression");
-        if (new != p->old_value)
+        new_val = expr(p->expr, &success);
+        if (!success) {
+            printf("Error: Expression '%s' is invalid\n", p->expr);
+            continue;
+        }
+
+        if (new_val != p->old_value)
         {
-            printf("\n%s:\nOld value = %d\nNew value = %d\n",
-                   p->expr, p->old_value, new);
-            p->old_value = new;
+            printf("\nWatchpoint %d: %s\n", p->NO, p->expr);
+            printf("  Old value: %u\n", p->old_value);
+            printf("  New value: %u\n", new_val);
+            printf("  Change detected! ✅\n");
+
+            p->old_value = new_val;
             has_changed = true;
         }
     }
+
     return has_changed;
 }
 
