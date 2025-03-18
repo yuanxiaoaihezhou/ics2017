@@ -155,20 +155,21 @@ static bool make_token(char *e)
          */
 
 				switch (rules[i].token_type) {
-          			case TK_NOTYPE: break;
-					case TK_EQ: case TK_NEQ: case TK_LE:
-          			case TK_GE: case TK_AND: case TK_OR:
-          			case TK_PLUS: case TK_SUB: case TK_LPARE:
-          			case TK_RPARE: case TK_MUL:
-          			case TK_DIV: case TK_LT: case TK_GT:
-          			case TK_NOT: case TK_EOS_:
-            			tokens[nr_token].type = rules[i].token_type;
-            			nr_token++;
-         			default:
-            			tokens[nr_token].str[0] = '\0';
-            			strncat(tokens[nr_token].str, substr_start,
-              				(substr_len < sizeof(tokens[nr_token].str))
-              				? substr_len : sizeof(tokens[nr_token].str));
+          case TK_NOTYPE: break;
+          default:
+            tokens[nr_token].str[0] = '\0';
+            strncat(tokens[nr_token].str, substr_start,
+              (substr_len < sizeof(tokens[nr_token].str))
+              ? substr_len : sizeof(tokens[nr_token].str));
+            /* through down */
+          case TK_EQ: case TK_NEQ: case TK_LE:
+          case TK_GE: case TK_AND: case TK_OR:
+          case TK_PLUS: case TK_SUB: case TK_LPARE:
+          case TK_RPARE: case TK_MUL:
+          case TK_DIV: case TK_LT: case TK_GT:
+          case TK_NOT: case TK_EOS_:
+            tokens[nr_token].type = rules[i].token_type;
+            nr_token++;
         }
 
 				break;
