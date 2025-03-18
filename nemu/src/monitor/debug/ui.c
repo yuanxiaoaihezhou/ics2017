@@ -57,6 +57,48 @@ static int cmd_si(char *args)
   return 0;
 }
 
+static int cmd_info(char *args)
+{
+  char *arg = strtok(NULL, " ");
+  if (arg == NULL)
+  {
+    printf("args error: No args\n");
+    return 0;
+  }
+  char s;
+  int nRet = sscanf(args, "%c", &s);
+  if (nRet <= 0)
+  {
+    printf("args error: Analysis failed\n");
+    return 0;
+  }
+  if (s == 'r')
+  {
+    int i;
+    for (i = 0; i < 8; i++)
+    {
+      printf("%s        0x%x\n", regsl[i], reg_l(i));
+    }
+    printf("eip        0x%x\n", cpu.eip);
+    for (i = 0; i < 8; i++)
+    {
+      printf("%s        0x%x\n", regsw[i], reg_w(i));
+    }
+    for (i = 0; i < 8; i++)
+    {
+      printf("%s        0x%x\n", regsb[i], reg_b(i));
+    }
+  }
+  else if (s == 'w')
+  {
+    Log("TODO");
+    // info_watchpoint();
+  }
+  return 0;
+}
+
+
+
 static struct
 {
   char *name;
@@ -66,8 +108,9 @@ static struct
     {"help", "Display informations about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
-    {"si", "Let the program execute N instructions step by step, default N=1", cmd_si},
     /* TODO: Add more commands */
+    {"si", "Let the program execute N instructions step by step, default N=1", cmd_si},
+    {"info", "Print regs' status for r, checkpoint informations for w", cmd_info},
 
 };
 
