@@ -122,8 +122,8 @@ static int cmd_x(char *args)
     int num_bytes = atoi(num_str);
     // uint32_t addr = strtoul(addr_str, NULL, 16);
     bool success;
-    uint32_t addr  = expr(addr_str, &success);
-    if(!success)
+    uint32_t addr = expr(addr_str, &success);
+    if (!success)
     {
         printf("Wrong expr");
         return 0;
@@ -162,6 +162,50 @@ err:
     return 0;
 }
 
+static int cmd_w(char *args)
+{
+    bool success;
+    uint32_t val;
+
+    if (args == NULL)
+        goto err;
+
+    val = expr(args, &success);
+    if (!success)
+        goto err;
+
+    WP *wp = new_wp();
+    wp->expr = strdup(args);
+    wp->old_value = val;
+    printf("Watchpoint %d: %s\n", wp->NO, wp->expr);
+    return 0;
+
+err:
+    printf("Invalid expression\n");
+    return 0;
+}
+
+static int cmd_d(char *args)
+{
+    int n;
+    WP *wp;
+
+    if (args == NULL || sscanf(args, "%i", &n) != 1)
+    {
+        printf("Invalid watchpoint number: \'%s\'", args);
+        return 0;
+    }
+    wp = find_wp(n);
+    if (wp == NULL)
+    {
+        printf("Watchpoint %d doesn't exist\n", n);
+        return 0;
+    }
+    free_wp(wp);
+    printf("Watchpoint %d is deleted\n", n);
+    return 0;
+}
+
 static struct
 {
     char *name;
@@ -176,6 +220,8 @@ static struct
     {"info", "Print regs' status with arg r, checkpoint informations with arg w", cmd_info},
     {"x", "Scan the consecutive 4N bytes from Address expr", cmd_x},
     {"p", "Eval the value of the expression", cmd_p},
+    {"w", "New watchpoint", cmd_w},
+    {"d", "Delete watchpoint", cmd_d},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
