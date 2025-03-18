@@ -83,7 +83,21 @@ WP *find_wp(int n)
 void print_wp()
 {
     WP *p;
-    printf("Num\tExpression\tValue\n");
-    for (p = head; p; p = p->next)
-        printf("%d\t%s\t%u\n", p->NO, p->expr, p->old_value);
+    bool has_entries = false;
+
+    printf("Num\tExpression\t\tValue\n");
+    printf("----\t-----------\t\t------\n");
+
+    for (p = head; p != NULL; p = p->next) {
+        has_entries = true;
+
+        char expr_str[20];
+        snprintf(expr_str, sizeof(expr_str), "%.18s", p->expr);
+
+        printf("%-4d\t%-18s\t%8u\n", p->NO, expr_str, p->old_value);
+    }
+
+    if (!has_entries) {
+        printf("No watchpoints defined.\n");
+    }
 }

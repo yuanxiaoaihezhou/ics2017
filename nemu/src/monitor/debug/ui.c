@@ -198,17 +198,22 @@ static int cmd_d(char *args)
     int n;
     WP *wp;
 
-    if (args == NULL || sscanf(args, "%i", &n) != 1)
-    {
-        printf("Invalid watchpoint number: \'%s\'", args);
+    if (args == NULL) {
+        printf("Missing watchpoint number\n");
         return 0;
     }
+
+    if (sscanf(args, "%i", &n) != 1) {
+        printf("Invalid watchpoint number: '%s'\n", args);
+        return 0;
+    }
+
     wp = find_wp(n);
-    if (wp == NULL)
-    {
+    if (wp == NULL) {
         printf("Watchpoint %d doesn't exist\n", n);
         return 0;
     }
+
     free_wp(wp);
     printf("Watchpoint %d is deleted\n", n);
     return 0;
