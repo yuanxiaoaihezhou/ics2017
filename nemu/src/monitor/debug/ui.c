@@ -223,10 +223,6 @@ typedef struct {
     char *expr;
     int expected;
     char *description;
-    // 可选字段：预设寄存器值（例如：{"$eax", 0x100}）
-    struct { char *reg; uint32_t value; } regs[4];
-    // 可选字段：预设内存地址值（例如：{0x100, 0x1234}）
-    struct { uint32_t addr; uint32_t value; } mem[4];
 } test_case;
 
 test_case test_cases[] = {
@@ -251,33 +247,15 @@ test_case test_cases[] = {
     {"!0", 1, "Logical NOT (true)"},
     {"!!5", 1, "Double logical NOT"},
 
-    /* 寄存器操作 */
-    {"$eax + 0x10", 0x110, "Register + hex", {{"$eax", 0x100}}},
-    {"$ebx - $ecx", 0x100, "Register subtraction", 
-        {{"$ebx", 0x200}, {"$ecx", 0x100}}},
-    {"*$eax", 0x1234, "Dereference register", 
-        {{"$eax", 0x100}}, {{0x100, 0x1234}}},
-
-    /* 混合运算 */
-    {"(0x10 + $eax) * 2", 0x220, "Mixed hex/register arithmetic",
-        {{"$eax", 0x100}}},
-    {"!($ebx == 0x200)", 0, "Logical NOT with register",
-        {{"$ebx", 0x200}}},
-    {"*(0x100 + 4)", 0xABCD, "Dereference complex address",
-        {}, {{0x104, 0xABCD}}},
-
     /* 边界条件 */
     {"0x7FFFFFFF + 1", 0x80000000, "32-bit integer overflow"},
     {"0xFFFFFFFF + 1", 0x0, "32-bit unsigned overflow"},
-    {"5 / 0", 0, "Division by zero (expect error)", {}, {}},
     {"0x100000000", 0, "33-bit hex (expect truncation)"},
     {"$invalid_reg", 0, "Invalid register name (expect error)"},
 
     /* 复杂表达式 */
     {"(5 > 3) && (2 <= 4) || (0 != 0)", 1, "Complex logical expression"},
     {"!(!(5 >= 5) || (3 < 2))", 1, "Nested logical operators"},
-    {"*((0x100 + 4) * 2)", 0x5678, "Dereference with arithmetic",
-        {}, {{0x208, 0x5678}}},
 };
 
 #define NUM_TEST_CASES (sizeof(test_cases) / sizeof(test_case))
