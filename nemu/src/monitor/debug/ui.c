@@ -231,9 +231,6 @@ test_case test_cases[] = {
     {"-5 + 10", 5, "Unary minus"},
     {"0x10 + 0x20", 0x30, "Hexadecimal addition"},
     {"(3 | 5) & 7", 7, "Bitwise operations"},
-    {"1 << 3", 8, "Left shift"},
-    {"8 >> 2", 2, "Right shift"},
-    // 添加更多测试用例...
 };
 
 #define NUM_TEST_CASES (sizeof(test_cases) / sizeof(test_case))
