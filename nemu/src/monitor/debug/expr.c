@@ -275,10 +275,7 @@ static uint32_t eval(bool *success)
 
 	*success = true;
 
-	do
-	{
-		op_stack[op_i++] = (TK_EOS_);
-	} while (0);
+	op_stack[op_i++] = TK_EOS_;
 
 	tokens[nr_token].type = TK_EOS_;
 	nr_token++;
@@ -306,54 +303,28 @@ static uint32_t eval(bool *success)
 				}
 			}
 
-			switch (op_preced(
-				(op_stack[op_i - 1]), token_type))
+			switch (op_preced(op_stack[op_i - 1], token_type))
 			{
 			case '<':
-				do
-				{
-					op_stack[op_i++] = (token_type);
-				} while (0);
+				op_stack[op_i++] = token_type;
 				i++;
 				break;
 			case '>':
-				op = (op_stack[op_i - 1]);
-				do
-				{
-					--op_i;
-				} while (0);
+				op = op_stack[--op_i];
 				if (op == TK_NOT || op == TK_NEG_ || op == TK_DEREF_)
 				{
-					do
-					{
-						o1 = obj_stack[--obj_i];
-					} while (0);
-					do
-					{
-						obj_stack[obj_i++] = (operate(op, o1, 0));
-					} while (0);
+					o1 = obj_stack[--obj_i];
+					obj_stack[obj_i++] = operate(op, o1, 0);
 				}
 				else
 				{
-					do
-					{
-						o2 = obj_stack[--obj_i];
-					} while (0);
-					do
-					{
-						o1 = obj_stack[--obj_i];
-					} while (0);
-					do
-					{
-						obj_stack[obj_i++] = (operate(op, o1, o2));
-					} while (0);
+					o2 = obj_stack[--obj_i];
+					o1 = obj_stack[--obj_i];
+					obj_stack[obj_i++] = operate(op, o1, o2);
 				}
 				break;
 			case '=':
-				do
-				{
-					--op_i;
-				} while (0);
+				--op_i;
 				i++;
 				break;
 			default:
@@ -370,10 +341,7 @@ static uint32_t eval(bool *success)
 			{
 				if (strcmp(regsl[j], reg) == 0)
 				{ /* skip '$' */
-					do
-					{
-						obj_stack[obj_i++] = (reg_l(j));
-					} while (0);
+					obj_stack[obj_i++] = reg_l(j);
 					break;
 				}
 			}
@@ -383,10 +351,7 @@ static uint32_t eval(bool *success)
 			{
 				if (strcmp(regsw[j], reg) == 0)
 				{ /* skip '$' */
-					do
-					{
-						obj_stack[obj_i++] = (reg_w(j));
-					} while (0);
+					obj_stack[obj_i++] = reg_w(j);
 					break;
 				}
 			}
@@ -396,10 +361,7 @@ static uint32_t eval(bool *success)
 			{
 				if (strcmp(regsb[j], reg) == 0)
 				{ /* skip '$' */
-					do
-					{
-						obj_stack[obj_i++] = (reg_b(j));
-					} while (0);
+					obj_stack[obj_i++] = reg_b(j);
 					break;
 				}
 			}
@@ -408,10 +370,7 @@ static uint32_t eval(bool *success)
 			/* EIP */
 			if (strcmp("eip", reg) == 0)
 			{
-				do
-				{
-					obj_stack[obj_i++] = (cpu.eip);
-				} while (0);
+				obj_stack[obj_i++] = cpu.eip;
 				continue;
 			}
 
@@ -422,10 +381,7 @@ static uint32_t eval(bool *success)
 		{
 			int j;
 			sscanf(tokens[i].str, "%i", &j);
-			do
-			{
-				obj_stack[obj_i++] = (j);
-			} while (0);
+			obj_stack[obj_i++] = j;
 			i++;
 		}
 	}
