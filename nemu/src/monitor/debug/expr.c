@@ -266,63 +266,41 @@ static uint32_t operate(int op, uint32_t obj1, uint32_t obj2)
 
 static uint32_t eval(bool *success)
 {
-	static int op_stack[32]; // 运算符栈
-	static uint32_t obj_stack[32]; // 操作数栈
+	static int op_stack[32];
+	static uint32_t obj_stack[32];
 	int obj_i = 0, op_i = 0;
-	int token_type, i = 0;
+	int token_type, i;
 	int op;
 	uint32_t o1, o2;
 
-	if (success == NULL) {
-		return 0; // success 指针无效
-	}
 	*success = true;
 
 	op_stack[op_i++] = TK_EOS_;
 
-	if (tokens == NULL || nr_token < 0) {
-		*success = false;
-		return 0; // tokens 无效或 nr_token 无效
-	}
 	tokens[nr_token].type = TK_EOS_;
 	nr_token++;
 
 	for (i = 0;
-		 (op_stack[op_i - 1] != TK_EOS_) || (i < nr_token && tokens[i].type != TK_EOS_);) // 确保 i 在 tokens 的有效范围内
+		 (op_stack[op_i - 1] != TK_EOS_) || tokens[i].type != TK_EOS_;)
 	{
-		if (i >= nr_token) {
-			*success = false;
-			return 0; // i 超出 tokens 范围
-		}
-
-		token_type = tokens[i].type;
-
-		if (is_op(token_type))
+		if (is_op((token_type = tokens[i].type)))
 		{
-			if (i == 0 || (i > 0 && is_op(tokens[i - 1].type)))
+
+			if (i == 0 || is_op(tokens[i - 1].type))
 			{
-				if (token_type == TK_SUB && (i > 0 && tokens[i - 1].type != TK_RPARE))
+				if (token_type == TK_SUB && tokens[i - 1].type != TK_RPARE)
 				{
 					token_type = TK_NEG_;
 				}
-				else if (token_type == TK_MUL && (i > 0 && tokens[i - 1].type != TK_RPARE))
+				else if (token_type == TK_MUL && tokens[i - 1].type != TK_RPARE)
 				{
 					token_type = TK_DEREF_;
 				}
-				else if (token_type != TK_LPARE && (i > 0 && tokens[i - 1].type != TK_RPARE))
+				else if (token_type != TK_LPARE && tokens[i - 1].type != TK_RPARE)
 				{
 					*success = false;
 					return -1;
 				}
-				else if (i == 0 && token_type != TK_SUB && token_type != TK_MUL && token_type != TK_LPARE) {
-					*success = false;
-					return -1; // 第一个 token 不能是此运算符
-				}
-			}
-
-			if (op_i >= sizeof(op_stack) / sizeof(op_stack[0])) {
-				*success = false;
-				return -1; // 运算符栈溢出
 			}
 
 			switch (op_preced(op_stack[op_i - 1], token_type))
@@ -332,44 +310,20 @@ static uint32_t eval(bool *success)
 				i++;
 				break;
 			case '>':
-				if (op_i <= 0) {
-					*success = false;
-					return -1; // 运算符栈下溢
-				}
 				op = op_stack[--op_i];
 				if (op == TK_NOT || op == TK_NEG_ || op == TK_DEREF_)
 				{
-					if (obj_i <= 0) {
-						*success = false;
-						return -1; // 操作数栈下溢
-					}
 					o1 = obj_stack[--obj_i];
-					if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-						*success = false;
-						return -1; // 操作数栈溢出
-					}
 					obj_stack[obj_i++] = operate(op, o1, 0);
 				}
 				else
 				{
-					if (obj_i <= 1) {
-						*success = false;
-						return -1; // 操作数栈下溢
-					}
 					o2 = obj_stack[--obj_i];
 					o1 = obj_stack[--obj_i];
-					if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-						*success = false;
-						return -1; // 操作数栈溢出
-					}
 					obj_stack[obj_i++] = operate(op, o1, o2);
 				}
 				break;
 			case '=':
-				if (op_i <= 0) {
-					*success = false;
-					return -1; // 运算符栈下溢
-				}
 				--op_i;
 				i++;
 				break;
@@ -381,20 +335,12 @@ static uint32_t eval(bool *success)
 		else if (token_type == TK_REG)
 		{
 			int j;
-			if (i >= nr_token || tokens[i].str == NULL) {
-				*success = false;
-				return 0; // 无效的 token 或 token 字符串
-			}
-			const char *reg = tokens[i++].str + 1; /* 跳过 '$' */
+			const char *reg = tokens[i++].str + 1; /* skip '$' */
 			/* GPR */
 			for (j = R_EAX; j <= R_EDI; j++)
 			{
-				if (regsl[j] != NULL && strcmp(regsl[j], reg) == 0)
-				{
-					if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-						*success = false;
-						return -1; // 操作数栈溢出
-					}
+				if (strcmp(regsl[j], reg) == 0)
+				{ /* skip '$' */
 					obj_stack[obj_i++] = reg_l(j);
 					break;
 				}
@@ -403,12 +349,8 @@ static uint32_t eval(bool *success)
 				continue;
 			for (j = R_AX; j <= R_DI; j++)
 			{
-				if (regsw[j] != NULL && strcmp(regsw[j], reg) == 0)
-				{
-					if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-						*success = false;
-						return -1; // 操作数栈溢出
-					}
+				if (strcmp(regsw[j], reg) == 0)
+				{ /* skip '$' */
 					obj_stack[obj_i++] = reg_w(j);
 					break;
 				}
@@ -417,12 +359,8 @@ static uint32_t eval(bool *success)
 				continue;
 			for (j = R_AL; j <= R_BH; j++)
 			{
-				if (regsb[j] != NULL && strcmp(regsb[j], reg) == 0)
-				{
-					if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-						*success = false;
-						return -1; // 操作数栈溢出
-					}
+				if (strcmp(regsb[j], reg) == 0)
+				{ /* skip '$' */
 					obj_stack[obj_i++] = reg_b(j);
 					break;
 				}
@@ -432,11 +370,7 @@ static uint32_t eval(bool *success)
 			/* EIP */
 			if (strcmp("eip", reg) == 0)
 			{
-				if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-					*success = false;
-					return -1; // 操作数栈溢出
-				}
-				obj_stack[obj_i++] = cpu.eip; // 假设 cpu 是一个有效的指针
+				obj_stack[obj_i++] = cpu.eip;
 				continue;
 			}
 
@@ -446,28 +380,11 @@ static uint32_t eval(bool *success)
 		else
 		{
 			int j;
-			if (i >= nr_token || tokens[i].str == NULL) {
-				*success = false;
-				return 0; // 无效的 token 或 token 字符串
-			}
-			if (sscanf(tokens[i].str, "%i", &j) != 1) {
-				*success = false;
-				return 0; // 解析失败
-			}
-			if (obj_i >= sizeof(obj_stack) / sizeof(obj_stack[0])) {
-				*success = false;
-				return -1; // 操作数栈溢出
-			}
+			sscanf(tokens[i].str, "%i", &j);
 			obj_stack[obj_i++] = j;
 			i++;
 		}
 	}
-
-	if (obj_i != 1) {
-		*success = false;
-		return 0; // 无效的表达式
-	}
-
 	return obj_stack[0];
 }
 
