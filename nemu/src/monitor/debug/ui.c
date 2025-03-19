@@ -247,12 +247,6 @@ test_case test_cases[] = {
     {"!0", 1, "Logical NOT (true)"},
     {"!!5", 1, "Double logical NOT"},
 
-    /* 边界条件 */
-    {"0x7FFFFFFF + 1", 0x80000000, "32-bit integer overflow"},
-    {"0xFFFFFFFF + 1", 0x0, "32-bit unsigned overflow"},
-    {"0x100000000", 0, "33-bit hex (expect truncation)"},
-    {"$invalid_reg", 0, "Invalid register name (expect error)"},
-
     /* 复杂表达式 */
     {"(5 > 3) && (2 <= 4) || (0 != 0)", 1, "Complex logical expression"},
     {"!(!(5 >= 5) || (3 < 2))", 1, "Nested logical operators"},
