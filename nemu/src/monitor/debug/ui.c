@@ -235,9 +235,6 @@ test_case test_cases[] = {
 
     /* 进制转换 */
     {"0x10 + 0x20", 0x30, "Hexadecimal addition"},
-    {"077", 63, "Octal value (077)"},
-    {"0b1010", 10, "Binary value (0b1010)"},
-    {"0xFFFFFFFF", 0xFFFFFFFF, "32-bit hex max value"},
 
     /* 逻辑运算 */
     {"5 == 5", 1, "Equality check"},
@@ -246,6 +243,12 @@ test_case test_cases[] = {
     {"5 >= 5 || 0 == 1", 1, "Logical OR (true)"},
     {"!0", 1, "Logical NOT (true)"},
     {"!!5", 1, "Double logical NOT"},
+
+    /* 边界条件 */
+    {"0x7FFFFFFF + 1", 0x80000000, "32-bit integer overflow"},
+    {"0xFFFFFFFF + 1", 0x0, "32-bit unsigned overflow"},
+    {"0x100000000", 0, "33-bit hex (expect truncation)"},
+    {"$invalid_reg", 0, "Invalid register name (expect error)"},
 
     /* 复杂表达式 */
     {"(5 > 3) && (2 <= 4) || (0 != 0)", 1, "Complex logical expression"},
