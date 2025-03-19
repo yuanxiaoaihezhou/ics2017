@@ -219,6 +219,54 @@ static int cmd_d(char *args)
     return 0;
 }
 
+typedef struct {
+    char *expr;
+    int expected;
+    char *description;
+} test_case;
+
+test_case test_cases[] = {
+    {"1 + 2 * 3", 7, "Basic arithmetic (1+2*3)"},
+    {"(5 - 2) * 4", 12, "Parentheses priority"},
+    {"-5 + 10", 5, "Unary minus"},
+    {"0x10 + 0x20", 0x30, "Hexadecimal addition"},
+    {"(3 | 5) & 7", 7, "Bitwise operations"},
+    {"1 << 3", 8, "Left shift"},
+    {"8 >> 2", 2, "Right shift"},
+    // 添加更多测试用例...
+};
+
+#define NUM_TEST_CASES (sizeof(test_cases) / sizeof(test_case))
+
+static int cmd_ptest(char *args)
+{
+    int passed = 0;
+    int failed = 0;
+
+    printf("Running unit tests for 'p' command:\n");
+    for (int i = 0; i < NUM_TEST_CASES; i++) {
+        bool success;
+        uint32_t actual = expr(test_cases[i].expr, &success);
+
+        printf("Test %d: %-30s", i + 1, test_cases[i].description);
+        if (!success) {
+            printf(" [FAILED] (Parse error)\n");
+            failed++;
+        } else if (actual == test_cases[i].expected) {
+            printf(" [PASSED]\n");
+            passed++;
+        } else {
+            printf(" [FAILED]\n");
+            printf("  Expected: %d (0x%x)\n", test_cases[i].expected, test_cases[i].expected);
+            printf("  Actual:   %d (0x%x)\n", actual, actual);
+            failed++;
+        }
+    }
+
+    printf("\nTest Summary: %d passed, %d failed\n", passed, failed);
+    return 0;
+}
+
 static struct
 {
     char *name;
@@ -235,6 +283,7 @@ static struct
     {"p", "Eval the value of the expression", cmd_p},
     {"w", "New watchpoint", cmd_w},
     {"d", "Delete watchpoint", cmd_d},
+    {"ptest", "Run unit tests for the 'p' command", cmd_ptest},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
