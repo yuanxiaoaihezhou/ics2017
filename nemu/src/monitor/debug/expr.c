@@ -169,42 +169,27 @@ static bool make_token(char *e)
 				position += substr_len;
 
 				/* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
+         * to record the token in the array `tokens'. For certain types
+         * of tokens, some extra actions should be performed.
+         */
 
 				switch (rules[i].token_type)
 				{
 				case TK_NOTYPE:
 					break;
 				default:
-					tokens[nr_token].str[0] = '\0';
-					strncat(tokens[nr_token].str, substr_start,
-							(substr_len < sizeof(tokens[nr_token].str))
-								? substr_len
-								: sizeof(tokens[nr_token].str));
-					/* through down */
-				case TK_EQ:
-				case TK_NEQ:
-				case TK_LE:
-				case TK_GE:
-				case TK_AND:
-				case TK_OR:
-				case TK_PLUS:
-				case TK_SUB:
-				case TK_LPARE:
-				case TK_RPARE:
-				case TK_MUL:
-				case TK_DIV:
-				case TK_LT:
-				case TK_GT:
-				case TK_NOT:
-				case TK_EOS_:
-					tokens[nr_token].type = rules[i].token_type;
-					nr_token++;
+					{
+						tokens[nr_token].type = rules[i].token_type;
+						size_t len_to_copy = (substr_len < sizeof(tokens[nr_token].str))
+												 ? substr_len
+												 : sizeof(tokens[nr_token].str) - 1; // Reserve space for null terminator
+						strncpy(tokens[nr_token].str, substr_start, len_to_copy);
+						tokens[nr_token].str[len_to_copy] = '\0';
+						nr_token++;
+					}
+					break;
 				}
-
-				break;
+				break; // Move break here as it's always executed after a match
 			}
 		}
 
