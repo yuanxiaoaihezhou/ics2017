@@ -93,6 +93,15 @@ static int cmd_info(char *args)
         {
             printf("  %-3s = 0x%02x\n", regsb[i], reg_b(i));
         }
+
+        // Print EFLAGS
+        printf("EFLAGS:\n");
+        printf("  CF = %u\n", cpu.CF);
+        printf("  ZF = %u\n", cpu.ZF);
+        printf("  SF = %u\n", cpu.SF);
+        printf("  IF = %u\n", cpu.IF);
+        printf("  DF = %u\n", cpu.DF);
+        printf("  OF = %u\n", cpu.OF);
         break;
     }
     case 'w':
