@@ -96,6 +96,7 @@ static int cmd_info(char *args)
 
         // Print EFLAGS
         printf("EFLAGS:\n");
+        printf("  Raw Value = 0x%08x\n", cpu.eflags);
         printf("  CF = %u\n", cpu.CF);
         printf("  ZF = %u\n", cpu.ZF);
         printf("  SF = %u\n", cpu.SF);
