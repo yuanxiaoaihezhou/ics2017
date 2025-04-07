@@ -33,6 +33,10 @@ make_EHelper(movzx);
 make_EHelper(lea);
 make_EHelper(nop);
 make_EHelper(setcc);
+make_EHelper(mul);
+make_EHelper(imul);
+make_EHelper(div);
+make_EHelper(idiv);
 
 make_EHelper(operand_size);
 
