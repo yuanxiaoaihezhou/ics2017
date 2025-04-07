@@ -20,6 +20,7 @@ make_EHelper(leave);
 make_EHelper(cltd);
 make_EHelper(inc);
 make_EHelper(dec);
+make_EHelper(neg);
 
 make_EHelper(operand_size);
 
