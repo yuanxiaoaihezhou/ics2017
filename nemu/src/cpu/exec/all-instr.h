@@ -31,6 +31,7 @@ make_EHelper(jcc);
 make_EHelper(movsx);
 make_EHelper(movzx);
 make_EHelper(lea);
+make_EHelper(nop);
 
 make_EHelper(operand_size);
 
