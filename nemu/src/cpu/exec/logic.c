@@ -94,3 +94,8 @@ make_EHelper(not)
 
   print_asm_template1(not);
 }
+
+make_EHelper(rol){
+  rtl_shri(&t2, &id_dest->val, id_dest->width * 8 - id_src->val);
+  print_asm_template2(rol);
+}
