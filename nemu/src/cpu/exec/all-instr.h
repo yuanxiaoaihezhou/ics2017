@@ -43,6 +43,7 @@ make_EHelper(jmp_rm);
 make_EHelper(out);
 make_EHelper(in);
 make_EHelper(rol);
+make_EHelper(cwtl);
 
 make_EHelper(operand_size);
 
