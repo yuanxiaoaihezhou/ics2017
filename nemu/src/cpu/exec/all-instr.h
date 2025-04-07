@@ -16,7 +16,7 @@ make_EHelper(cmp);
 make_EHelper(xor);
 make_EHelper(ret);
 
-make_EHelper(leaave);
+make_EHelper(leave);
 
 
 make_EHelper(operand_size);
