@@ -162,7 +162,7 @@ void difftest_step(uint32_t eip)
   // Set `diff` as `true` if they are not the same.
   printf("Register Comparison:\n");
   for (int i = 0; i <= 7; i++)
-  { // Assuming R_EAX to R_EDI map to indices 0 to 7
+  {
     if (cpu.gpr[i]._32 != r.array[i])
     {
       printf("  DIFF: %-8s - NEMU: 0x%08x, QEMU: 0x%08x\n", reg_name(i, 4), cpu.gpr[i]._32, r.array[i]);
@@ -176,13 +176,35 @@ void difftest_step(uint32_t eip)
     diff = true;
   }
 
-  // The separate check for r.edi is redundant as it's covered in the loop.
+  int qemu_zf = (r.eflags >> 6) & 1;
+  int qemu_sf = (r.eflags >> 7) & 1;
+  int qemu_of = (r.eflags >> 11) & 1;
+  int qemu_cf = (r.eflags >> 0) & 1;
+  int qemu_if_flag = (r.eflags >> 9) & 1;
 
-  if (r.eflags != cpu.eflags)
+  if (cpu.ZF != qemu_zf)
   {
-    printf("    DIFF: %-8s - NEMU: 0x%08x, QEMU: 0x%08x\n", "EFLAGS", cpu.eflags, r.eflags);
-    printf("    NEMU Flags: ZF=%d, SF=%d, OF=%d, CF=%d, IF=%d\n", cpu.ZF, cpu.SF, cpu.OF, cpu.CF, cpu.IF);
-    printf("    QEMU Flags: (Individual flags not directly available)\n");
+    printf("  DIFF: ZF - NEMU: %d, QEMU: %d\n", cpu.ZF, qemu_zf);
+    diff = true;
+  }
+  if (cpu.SF != qemu_sf)
+  {
+    printf("  DIFF: SF - NEMU: %d, QEMU: %d\n", cpu.SF, qemu_sf);
+    diff = true;
+  }
+  if (cpu.OF != qemu_of)
+  {
+    printf("  DIFF: OF - NEMU: %d, QEMU: %d\n", cpu.OF, qemu_of);
+    diff = true;
+  }
+  if (cpu.CF != qemu_cf)
+  {
+    printf("  DIFF: CF - NEMU: %d, QEMU: %d\n", cpu.CF, qemu_cf);
+    diff = true;
+  }
+  if (cpu.IF != qemu_if_flag)
+  {
+    printf("  DIFF: IF - NEMU: %d, QEMU: %d\n", cpu.IF, qemu_if_flag);
     diff = true;
   }
 
