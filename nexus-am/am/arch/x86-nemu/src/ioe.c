@@ -25,10 +25,13 @@ _Screen _screen = {
 extern void* memcpy(void *, const void *, int);
 
 void _draw_rect(const uint32_t *pixels, int x, int y, int w, int h) {
-  int i;
-  for (i = 0; i < _screen.width * _screen.height; i++) {
-    fb[i] = i;
-  }
+    for (int i = 0; i < h; i++) {
+        uint32_t *dest_row = fb + (y + i) * _screen.width + x;
+        const uint32_t *pixels_row = pixels + i * w;
+        for (int j = 0; j < w; j++) {
+            dest_row[j] = pixels_row[j];
+        }
+    }
 }
 
 void _draw_sync() {
