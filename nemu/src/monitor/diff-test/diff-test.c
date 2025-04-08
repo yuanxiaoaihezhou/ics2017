@@ -160,7 +160,6 @@ void difftest_step(uint32_t eip)
 
   // TODO: Check the registers state with QEMU.
   // Set `diff` as `true` if they are not the same.
-  printf("Register Comparison:\n");
   for (int i = 0; i <= 7; i++)
   {
     if (cpu.gpr[i]._32 != r.array[i])
@@ -221,7 +220,7 @@ void difftest_step(uint32_t eip)
 
     printf("\nQEMU Register State:\n");
     printf("  EIP:    0x%08x\n", r.eip);
-    printf("  EFLAGS: 0x%08x\n", r.eflags);
+    printf("  Flags:  ZF=%d, SF=%d, OF=%d, CF=%d, IF=%d\n", qemu_zf, qemu_sf, qemu_of, qemu_cf, qemu_if_flag);
     printf("  Registers:\n");
     for (int i = 0; i <= 7; i++)
     {
