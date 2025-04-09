@@ -101,7 +101,6 @@ static int cmd_info(char *args)
         printf("  ZF = %u\n", cpu.ZF);
         printf("  SF = %u\n", cpu.SF);
         printf("  IF = %u\n", cpu.IF);
-        printf("  DF = %u\n", cpu.DF);
         printf("  OF = %u\n", cpu.OF);
         break;
     }
