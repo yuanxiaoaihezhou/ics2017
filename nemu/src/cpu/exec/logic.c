@@ -17,7 +17,7 @@ make_EHelper(and)
   rtl_sext(&t0, &id_src->val, id_src->width);
   rtl_and(&t0, &id_dest->val, &t0);
   operand_write(id_dest, &t0);
-  
+
   rtl_update_ZFSF(&t0, id_dest->width);
   rtl_li(&t1, 0);
   rtl_set_CF(&t1);
@@ -34,7 +34,7 @@ make_EHelper(xor)
   rtl_set_CF(&tzero);
   rtl_set_OF(&tzero);
   rtl_update_ZFSF(&id_dest->val, id_dest->width);
-  
+
   print_asm_template2(xor);
 }
 
@@ -102,10 +102,27 @@ make_EHelper(not)
   print_asm_template1(not);
 }
 
-make_EHelper(rol){
+make_EHelper(rol) 
+{
   rtl_shl(&t0, &id_dest->val, &id_src->val);
-	rtl_shri(&t1, &id_dest->val, id_dest->width * 8 - id_src->val);
-	rtl_or(&t2, &t1, &t0);
-	operand_write(id_dest, &t2);
+  rtl_shri(&t1, &id_dest->val, id_dest->width * 8 - id_src->val);
+  rtl_or(&t2, &t1, &t0);
+  operand_write(id_dest, &t2);
+  
+  rtlreg_t shift = id_src->val % (id_dest->width * 8);
+  if (shift != 0) {
+    rtlreg_t mask = 1 << (shift - 1);
+    rtlreg_t last_out = (id_dest->val & mask) ? 1 : 0;
+    rtl_li(&t3, last_out);
+    rtl_set_CF(&t3);
+  }
+  
+  if (id_src->val == 1) {
+    rtl_msb(&t3, &t2, id_dest->width);  
+    rtl_get_CF(&t0);                    
+    rtl_xor(&t3, &t3, &t0);             
+    rtl_set_OF(&t3);
+  }
+
   print_asm_template2(rol);
 }
