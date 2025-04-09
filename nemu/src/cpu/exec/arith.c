@@ -23,15 +23,13 @@ make_EHelper(add)
 }
 
 make_EHelper(sub) {
-  rtlreg_t result;
-  rtl_sub(&result, &id_dest->val, &id_src->val);
-  operand_write(id_dest, &result);
+  rtl_sub(&t1, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t1);
 
   // 设置标志位
-  cpu.ZF = (result == 0);
-  cpu.SF = (result >> (id_dest->width * 8 - 1)) & 1;
-  cpu.CF = (id_dest->val < result);
-  cpu.OF = ((id_dest->val ^ result) & (id_src->val ^ result)) >> (id_dest->width * 8 - 1);
+  rtl_update_ZFSF(&t1, id_dest->width);
+  cpu.CF = (id_dest->val < t1);
+  cpu.OF = ((id_dest->val ^ t1) & (id_src->val ^ t1)) >> (id_dest->width * 8 - 1);
 
   print_asm_template2(sub);
 }
