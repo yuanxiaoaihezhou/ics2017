@@ -89,7 +89,6 @@ make_EHelper(neg) {
 
   rtl_update_ZFSF(&t0, id_dest->width);
 
-  // 设置CF标志: 如果源操作数不为0，则CF=1
   rtl_neq0(&t1, &id_dest->val);
   rtl_set_CF(&t1);
 
