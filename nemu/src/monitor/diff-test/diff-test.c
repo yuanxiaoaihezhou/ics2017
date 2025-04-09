@@ -201,9 +201,7 @@ void difftest_step(uint32_t eip)
       printf("    %-8s: 0x%08x\n", reg_name(i, 4), r.array[i]);
     }
 
-    // Assuming these are global variables
     nemu_state = NEMU_END;
-    // return; // Removed return as it's likely inside a function
   }
 
   if (diff)
