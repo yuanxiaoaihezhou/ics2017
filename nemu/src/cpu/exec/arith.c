@@ -81,23 +81,24 @@ make_EHelper(dec)
   print_asm_template1(dec);
 }
 
-make_EHelper(neg)
-{
-  rtl_li(&t2, id_dest->val);
-  rtl_not(&t2);
-  rtl_addi(&t2, &t2, 1);
-  operand_write(id_dest, &t2);
+make_EHelper(neg) {
+  rtl_mv(&t0, &id_dest->val);  
+  rtl_not(&t0);                 
+  rtl_addi(&t0, &t0, 1);        
+  operand_write(id_dest, &t0);  
 
-  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_update_ZFSF(&t0, id_dest->width);
 
-  t1 = (id_dest->val != 0);
+  // 设置CF标志: 如果源操作数不为0，则CF=1
+  rtl_neq0(&t1, &id_dest->val);
   rtl_set_CF(&t1);
 
-  rtl_xor(&t0, &id_dest->val, &t0);
-  rtl_xor(&t1, &id_dest->val, &t2);
-  rtl_and(&t0, &t0, &t1);
-  rtl_msb(&t0, &t0, id_dest->width);
-  rtl_set_OF(&t0);
+  rtl_li(&t1, 1 << (id_dest->width * 8 - 1));  
+  rtl_eq0(&t2, &id_dest->val);                 
+  rtl_not(&t2);                                
+  rtl_eqi(&t3, &id_dest->val, t1);            
+  rtl_and(&t2, &t2, &t3);                      
+  rtl_set_OF(&t2);
 
   print_asm_template1(neg);
 }
