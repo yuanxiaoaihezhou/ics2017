@@ -180,10 +180,8 @@ static inline void rtl_not(rtlreg_t *dest)
 
 static inline void rtl_sext(rtlreg_t *dest, const rtlreg_t *src1, int width)
 {
-  // dest <- signext(src1[(width * 8 - 1) .. 0])
-  rtl_li(&t1, 32 - width * 8);
-  rtl_shl(dest, src1, &t1);
-  rtl_sar(dest, dest, &t1);
+  int shift = 32 - width * 8;
+  *dest = (rtlreg_t)((int32_t)(*src1 << shift) >> shift);
 }
 
 static inline void rtl_push(const rtlreg_t *src1)
