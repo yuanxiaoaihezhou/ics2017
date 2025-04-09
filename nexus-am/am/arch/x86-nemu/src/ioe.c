@@ -38,8 +38,8 @@ void _draw_sync() {
 }
 
 int _read_key() {
-  uint8_t impresskey = inb(I8042_STATUS_PORT);
-  if (impresskey) {
+  uint8_t key = inb(I8042_STATUS_PORT);
+  if (key) {
 	  return inl(I8042_DATA_PORT);
   } else {
 	  return _KEY_NONE;
