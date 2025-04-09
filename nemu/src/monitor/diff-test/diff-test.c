@@ -181,32 +181,6 @@ void difftest_step(uint32_t eip)
   int qemu_cf = (r.eflags >> 0) & 1;
   int qemu_if_flag = (r.eflags >> 9) & 1;
 
-  if (cpu.ZF != qemu_zf)
-  {
-    printf("  DIFF: ZF - NEMU: %d, QEMU: %d\n", cpu.ZF, qemu_zf);
-    // diff = true;
-  }
-  if (cpu.SF != qemu_sf)
-  {
-    printf("  DIFF: SF - NEMU: %d, QEMU: %d\n", cpu.SF, qemu_sf);
-    // diff = true;
-  }
-  if (cpu.OF != qemu_of)
-  {
-    printf("  DIFF: OF - NEMU: %d, QEMU: %d\n", cpu.OF, qemu_of);
-    // diff = true;
-  }
-  if (cpu.CF != qemu_cf)
-  {
-    printf("  DIFF: CF - NEMU: %d, QEMU: %d\n", cpu.CF, qemu_cf);
-    // diff = true;
-  }
-  if (cpu.IF != qemu_if_flag)
-  {
-    printf("  DIFF: IF - NEMU: %d, QEMU: %d\n", cpu.IF, qemu_if_flag);
-    // diff = true;
-  }
-
   if (diff)
   {
     printf("\nNEMU Register State:\n");
