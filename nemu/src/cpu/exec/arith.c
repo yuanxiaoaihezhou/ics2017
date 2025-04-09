@@ -23,7 +23,8 @@ make_EHelper(add)
 }
 
 make_EHelper(sub) {
-  uint32_t result = id_dest->val - id_src->val;
+  rtlreg_t result;
+  rtl_sub(&result, &id_dest->val, &id_src->val);
   operand_write(id_dest, &result);
 
   // 设置标志位
