@@ -180,6 +180,7 @@ static inline void rtl_not(rtlreg_t *dest)
 
 static inline void rtl_sext(rtlreg_t *dest, const rtlreg_t *src1, int width)
 {
+  // dest <- signext(src1[(width * 8 - 1) .. 0])
   int shift = 32 - width * 8;
   *dest = (rtlreg_t)((int32_t)(*src1 << shift) >> shift);
 }
@@ -224,7 +225,8 @@ static inline void rtl_neq0(rtlreg_t *dest, const rtlreg_t *src1)
 static inline void rtl_msb(rtlreg_t *dest, const rtlreg_t *src1, int width)
 {
   // dest <- src1[width * 8 - 1]
-  rtl_shri(dest, src1, width * 8 - 1);
+  rtlreg_t mask = (rtlreg_t)1 << (width * 8 - 1);
+  *dest = ((*src1) & mask) ? 1 : 0;
 }
 
 static inline void rtl_update_ZF(const rtlreg_t *result, int width)
