@@ -1,6 +1,20 @@
 #include "common.h"
 #include "syscall.h"
 
+uintptr_t sys_write(int fd, const void *buf, size_t count) {
+
+    if (fd != 1 && fd != 2) {
+        return 0; 
+    }
+
+    const char *ptr = buf;
+    while (count--) {
+        _putc(*ptr++);
+    }
+    
+    return (uintptr_t)(ptr - (const char*)buf);
+}
+
 _RegSet *do_syscall(_RegSet *r)
 {
   uintptr_t a[4];
@@ -13,6 +27,9 @@ _RegSet *do_syscall(_RegSet *r)
     break;
   case SYS_exit:
     _halt(SYSCALL_ARG2(r));
+    break;
+  case SYS_write:
+    SYSCALL_ARG1(r) = sys_write(SYSCALL_ARG2(r), (void *)SYSCALL_ARG3(r), SYSCALL_ARG4(r));
     break;
   default:
     panic("Unhandled syscall ID = %d", a[0]);
