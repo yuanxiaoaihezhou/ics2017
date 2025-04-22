@@ -47,6 +47,9 @@ make_EHelper(in);
 make_EHelper(rol);
 make_EHelper(cwtl);
 
+make_EHelper(lidt);
+make_EHelper(int);
+
 make_EHelper(operand_size);
 
 make_EHelper(inv);
