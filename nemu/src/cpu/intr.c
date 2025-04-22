@@ -14,16 +14,15 @@ void raise_intr(uint8_t NO, vaddr_t ret_addr)
     assert(0);
   }
 
-  uint32_t t0 = cpu.cs; 
-  rtl_push(&cpu.eflags);
-  rtl_push(&t0);
-  rtl_push(&ret_addr);
+  uint16_t offset_low = vaddr_read(gate_addr + 0, 2); 
+  uint16_t offset_high = vaddr_read(gate_addr + 6, 2); 
+  uint32_t entry_point = (offset_high << 16) | offset_low;
 
-  uint32_t high, low;
-  low = vaddr_read(gate_addr, 4) & 0xffff;
-  high = vaddr_read(gate_addr + 4, 4) & 0xffff0000;
+  rtl_push((uint32_t[]){cpu.eflags}); // EFLAGS
+  rtl_push((uint32_t[]){cpu.cs});     // CS（16位扩展为32位）
+  rtl_push(&ret_addr);                // 返回地址
 
-  decoding.jmp_eip = high | low;
+  decoding.jmp_eip = entry_point;
   decoding.is_jmp = true;
 }
 
