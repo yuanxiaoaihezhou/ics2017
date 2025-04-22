@@ -9,7 +9,7 @@ void raise_intr(uint8_t NO, vaddr_t ret_addr)
 
   vaddr_t gate_addr = cpu.idtr.base + NO * 8;
 
-  if (gate_addr + 7 > cpu.idtr.base + cpu.idtr.limit)
+  if (cpu.idtr.limit < 0)
   {
     assert(0);
   }
