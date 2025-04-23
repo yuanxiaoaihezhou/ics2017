@@ -116,9 +116,11 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
       len = fs_size - file_table[fd].open_offset;
     ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
+    Log("offset = %d", file_table[fd].open_offset);
     break;
   }
-
+  
+  Log("File write over");
   return len;
 }
 
@@ -146,11 +148,12 @@ off_t fs_lseek(int fd, off_t offset, int whence)
 		new_offset = file_table[fd].open_offset;
     break;
   }
-
+  Log("File seek over");
   return new_offset;
 }
 
 int fs_close(int fd)
 {
+  Log("File closed");
   return 0;
 }
