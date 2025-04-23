@@ -12,7 +12,7 @@
 // FIXME: this is temporary
 
 extern char _end;
-static intptr_t brk = (intptr_t) &_end;
+static intptr_t brk = (intptr_t)&_end;
 
 int _syscall_(int type, uintptr_t a0, uintptr_t a1, uintptr_t a2){
   int ret = -1;
