@@ -69,32 +69,29 @@ int fs_open(const char *pathname, int flags, int mode)
 ssize_t fs_read(int fd, void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
-  Log("fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
+
+  if (file_table[fd].open_offset + len > fs_size) // overfill detect
+    len = fs_size - file_table[fd].open_offset;
+
   switch (fd)
   {
+  case FD_STDIN:
   case FD_STDOUT:
-  case FD_FB:
-    break;
+  case FD_STDERR:
+    return 0;
   case FD_EVENTS:
     len = events_read((void *)buf, len);
     break;
   case FD_DISPINFO:
-    if (file_table[fd].open_offset >= file_table[fd].size)
-      return 0;
-    if (file_table[fd].open_offset + len > file_table[fd].size)
-      len = file_table[fd].size - file_table[fd].open_offset;
     dispinfo_read(buf, file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
   default:
-    if (file_table[fd].open_offset >= fs_size || len == 0)
-      return 0;
-    if (file_table[fd].open_offset + len > fs_size)
-      len = fs_size - file_table[fd].open_offset;
     ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
   }
+  Log("File read over");
   return len;
 }
 
@@ -115,11 +112,12 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
     file_table[fd].open_offset += len;
     break;
   default:
+    if (file_table[fd].open_offset >= fs_size)
+      return 0;
     if (file_table[fd].open_offset + len > fs_size)
       len = fs_size - file_table[fd].open_offset;
     ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
-    Log("offset = %d", file_table[fd].open_offset);
     break;
   }
 
