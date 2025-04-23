@@ -54,11 +54,6 @@ int fs_open(const char *pathname, int flags, int mode)
 
   for (int i = 0; i < NR_FILES; i++)
   {
-    if (file_table[i].name == NULL || file_table[i].name[0] == '\0')
-    {
-      continue;
-    }
-
     if (strcmp(file_table[i].name, pathname) == 0)
     {
       Log("Successfully opened file: %s (fd=%d)", pathname, i);
@@ -132,17 +127,25 @@ off_t fs_lseek(int fd, off_t offset, int whence)
   switch (whence)
   {
   case SEEK_SET:
-    new_offset = offset;
+    if (offset >= 0 && offset <= file_table[fd].size)
+    {
+      file_table[fd].open_offset = offset;
+      new_offset = file_table[fd].open_offset;
+    }
     break;
   case SEEK_CUR:
-    new_offset = file_table[fd].open_offset + offset;
+    if ((offset + file_table[fd].open_offset >= 0) && (offset + file_table[fd].open_offset <= file_table[fd].size))
+    {
+      file_table[fd].open_offset += offset;
+      new_offset = file_table[fd].open_offset;
+    }
     break;
   case SEEK_END:
-    new_offset = file_table[fd].size + offset;
+    file_table[fd].open_offset = file_table[fd].size + offset;
+		new_offset = file_table[fd].open_offset;
     break;
   }
 
-  file_table[fd].open_offset = new_offset;
   return new_offset;
 }
 
