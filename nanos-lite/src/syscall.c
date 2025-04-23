@@ -2,12 +2,6 @@
 #include "syscall.h"
 #include "fs.h"
 
-extern int fs_open(const char *pathname, int flags, int mode);
-extern ssize_t fs_read(int fd, void *buf, size_t len);
-extern ssize_t fs_write(int fd, const void *buf, size_t len);
-extern off_t fs_lseek(int fd, off_t offset, int whence);
-extern int fs_close(int fd);
-
 _RegSet *do_syscall(_RegSet *r)
 {
   uintptr_t a[4];
