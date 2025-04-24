@@ -11,12 +11,12 @@ size_t events_read(void *buf, size_t len)
 {
   int key = _read_key();
   bool down = false;
-  if (key & 0x8000) 
+  Log("key = %d\n", key);
+  if (key & 0x8000)
   {
-		key ^= 0x8000;
-		down = true;
-	}
-
+    key ^= 0x8000;
+    down = true;
+  }
   if (key == _KEY_NONE)
   {
     unsigned long t = _uptime();
@@ -24,7 +24,7 @@ size_t events_read(void *buf, size_t len)
   }
   else
   {
-    sprintf(buf, "%s %s\n", down ? "down" : "up", keyname[key]);
+    sprintf(buf, "%s %s\n", down ? "kd" : "ku", keyname[key]);
   }
   return strlen(buf);
 }
