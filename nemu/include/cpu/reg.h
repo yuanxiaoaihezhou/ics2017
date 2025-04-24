@@ -28,6 +28,7 @@ typedef struct {
     };
   };
   vaddr_t eip;
+  uint32_t cs;
   union{
      struct
      {
@@ -44,9 +45,8 @@ typedef struct {
      };
      uint32_t eflags;
    };
-  uint32_t cs;
   struct{
-    uint32_t base;
+    uint16_t base;
     uint32_t limit;
   } idtr;
 } CPU_state;
