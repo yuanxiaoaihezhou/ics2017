@@ -73,6 +73,8 @@ ssize_t fs_read(int fd, void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
 
+  if(file_table[fd].open_offset >= fs_size || len == 0)
+		return 0;
   if (file_table[fd].open_offset + len > fs_size) // overfill detect
     len = fs_size - file_table[fd].open_offset;
 
