@@ -4,8 +4,10 @@ make_EHelper(test)
 {
   rtl_and(&t2, &id_dest->val, &id_src->val);
   rtl_update_ZFSF(&t2, id_dest->width);
+
   rtl_set_CF(&tzero);
   rtl_set_OF(&tzero);
+
   print_asm_template2(test);
 }
 
@@ -13,9 +15,11 @@ make_EHelper(and)
 {
   rtl_and(&t2, &id_dest->val, &id_src->val);
   operand_write(id_dest, &t2);
+
   rtl_update_ZFSF(&t2, id_dest->width);
   rtl_set_CF(&tzero);
   rtl_set_OF(&tzero);
+
   print_asm_template2(and);
 }
 
@@ -23,6 +27,7 @@ make_EHelper(xor)
 {
   rtl_xor(&t2, &id_dest->val, &id_src->val);
   operand_write(id_dest, &t2);
+  
   rtl_update_ZFSF(&t2, id_dest->width);
   rtl_set_CF(&tzero);
   rtl_set_OF(&tzero);
@@ -32,11 +37,13 @@ make_EHelper(xor)
 
 make_EHelper(or)
 {
-  rtl_or(&t2, &id_dest->val, &id_src->val);
-  operand_write(id_dest, &t2);
+  rtl_or(&t0, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t0);
+
   rtl_set_OF(&tzero);
   rtl_set_CF(&tzero);
   rtl_update_ZFSF(&t2, id_dest->width);
+
   print_asm_template2(or);
 }
 
@@ -51,8 +58,8 @@ make_EHelper(sar)
   {
     id_dest->val = (int16_t)id_dest->val;
   }
-  rtl_sar(&t2, &id_dest->val, &id_src->val);
-  operand_write(id_dest, &t2);
+  rtl_sar(&t0, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t0);
   rtl_update_ZFSF(&t2, id_dest->width);
 
   print_asm_template2(sar);
@@ -61,9 +68,9 @@ make_EHelper(sar)
 make_EHelper(shl)
 {
   // unnecessary to update CF and OF in NEMU
-  rtl_shl(&t2, &id_dest->val, &id_src->val);
-  operand_write(id_dest, &t2);
-  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_shl(&t0, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t0);
+  rtl_update_ZFSF(&t0, id_dest->width);
 
   print_asm_template2(shl);
 }
@@ -71,9 +78,9 @@ make_EHelper(shl)
 make_EHelper(shr)
 {
   // unnecessary to update CF and OF in NEMU
-  rtl_shr(&t2, &id_dest->val, &id_src->val);
-  operand_write(id_dest, &t2);
-  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_shr(&t0, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t0);
+  rtl_update_ZFSF(&t0, id_dest->width);
 
   print_asm_template2(shr);
 }
