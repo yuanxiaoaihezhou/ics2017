@@ -7,15 +7,23 @@ void raise_intr(uint8_t NO, vaddr_t ret_addr)
    * That is, use ``NO'' to index the IDT.
    */
 
-  rtl_push((rtlreg_t *)&cpu.eflags);
-  rtl_push((rtlreg_t *)&cpu.cs);
-  rtl_push((rtlreg_t *)&ret_addr);
-  uint32_t idtr_base = cpu.idtr.base;
-  uint32_t eip_low, eip_high, offset;
-  eip_low = vaddr_read(idtr_base + NO * 8, 4) & 0x0000ffff;
-  eip_high = vaddr_read(idtr_base + NO * 8 + 4, 4) & 0xffff0000;
-  offset = eip_low | eip_high;
-  decoding.jmp_eip = offset;
+  vaddr_t gate_addr = cpu.idtr.base + 8 * NO;
+
+  if (cpu.idtr.limit < 0)
+  {
+    assert(0);
+  }
+
+  uint32_t t0 = cpu.cs;
+  rtl_push(&cpu.eflags);
+  rtl_push(&t0);
+  rtl_push(&ret_addr);
+
+  uint32_t high, low;
+  low = vaddr_read(gate_addr, 4) & 0xffff;
+  high = vaddr_read(gate_addr + 4, 4) & 0xffff0000;
+
+  decoding.jmp_eip = high | low;
   decoding.is_jmp = true;
 }
 
