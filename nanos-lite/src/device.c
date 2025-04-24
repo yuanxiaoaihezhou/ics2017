@@ -36,11 +36,35 @@ void dispinfo_read(void *buf, off_t offset, size_t len)
   memcpy(buf, dispinfo + offset, len);
 }
 
-void fb_write(const void *buf, off_t offset, size_t len)
+void fb_write(const void *buf, off_t offset, size_t len) 
 {
-  int row = (offset/4)/_screen.width;
-	int col = (offset/4)%_screen.width;
-	_draw_rect(buf,col,row,len/4,1);
+    offset >>= 2;   
+    len >>= 2;       
+    
+    int x = offset % _screen.width;
+    int y = offset / _screen.width;
+    const uint32_t *pixels = (const uint32_t *)buf;
+
+    int len1 = (len <= _screen.width - x) ? len : _screen.width - x;
+    if (len1 > 0) {
+        _draw_rect(pixels, x, y, len1, 1);
+        pixels += len1;
+    }
+
+    int remaining = len - len1;
+    if (remaining <= 0) return;
+
+    int full_rows = remaining / _screen.width;
+    int len2 = full_rows * _screen.width;
+    if (full_rows > 0) {
+        _draw_rect(pixels, 0, y + 1, _screen.width, full_rows);
+        pixels += len2;
+    }
+
+    int len3 = remaining - len2;
+    if (len3 > 0) {
+        _draw_rect(pixels, 0, y + 1 + full_rows, len3, 1);
+    }
 }
 
 void init_device()
