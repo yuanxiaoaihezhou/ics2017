@@ -52,14 +52,14 @@ size_t fs_filesz(int fd)
 
 int fs_open(const char *pathname, int flags, int mode)
 {
-  Log("Opening file: %s", pathname);
+  // Log("Opening file: %s", pathname);
 
   int i;
   for (i = 0; i < NR_FILES; i++)
   {
     if (strcmp(file_table[i].name, pathname) == 0)
     {
-      Log("Successfully opened file: %s (fd=%d)", pathname, i);
+      // Log("Successfully opened file: %s (fd=%d)", pathname, i);
       return i;
     }
   }
@@ -166,6 +166,6 @@ off_t fs_lseek(int fd, off_t offset, int whence)
 
 int fs_close(int fd)
 {
-  Log("File closed");
+  // Log("File closed");
   return 0;
 }
