@@ -72,12 +72,12 @@ int fs_open(const char *pathname, int flags, int mode)
 ssize_t fs_read(int fd, void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
-  Log("fs_read, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
+  // Log("fs_read, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
   switch (fd)
   {
   case FD_STDOUT:
   case FD_FB:
-    Log("fs_read fd_fb\n");
+    // Log("fs_read fd_fb\n");
     break;
   case FD_EVENTS:
     len = events_read((void *)buf, len);
@@ -105,7 +105,7 @@ ssize_t fs_read(int fd, void *buf, size_t len)
 ssize_t fs_write(int fd, const void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
-  Log("fs_write, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
+  // Log("fs_write, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
   switch (fd)
   {
   case FD_STDOUT:
@@ -125,13 +125,13 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
     if (file_table[fd].open_offset + len > fs_size)
       len = fs_size - file_table[fd].open_offset;
 
-    Log("Start ramdisk_write");
+    // Log("Start ramdisk_write");
     ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
   }
 
-  Log("File write over");
+  // Log("File write over");
   return len;
 }
 
@@ -159,7 +159,7 @@ off_t fs_lseek(int fd, off_t offset, int whence)
 			break;
 	}
 
-	Log("fs_lseek over");
+	// Log("fs_lseek over");
 	return result;
 }
 
