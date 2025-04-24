@@ -25,7 +25,6 @@ _RegSet *do_syscall(_RegSet *r)
     _halt(a[1]);
     break;
   case SYS_write:
-    //result = sys_write(a[1], (void *)a[2], a[3]);
     result = fs_write(a[1], (void *)a[2], a[3]);
     break;
   case SYS_read:
