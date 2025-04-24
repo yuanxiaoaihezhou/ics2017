@@ -1,113 +1,94 @@
 #include "cpu/exec.h"
 
-make_EHelper(mov) {
-  operand_write(id_dest, &id_src->val);
-  print_asm_template2(mov);
+make_EHelper(test) {
+  rtl_and(&t2, &id_dest->val, &id_src->val);
+  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
+  print_asm_template2(test);
 }
 
-make_EHelper(push) {
+make_EHelper(and) {
+	rtl_and(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
+	rtl_update_ZFSF(&t2, id_dest->width);
+	rtl_set_CF(&tzero);
+	rtl_set_OF(&tzero);
+  print_asm_template2(and);
+}
+
+make_EHelper(xor) {
+  rtl_xor(&t2, &id_dest->val, &id_src->val);
+	operand_write(id_dest, &t2);
+	rtl_update_ZFSF(&t2, id_dest->width);
+	rtl_set_CF(&tzero);
+	rtl_set_OF(&tzero);
+
+  print_asm_template2(xor);
+}
+
+make_EHelper(or) {
+	rtl_or(&t2, &id_dest->val, &id_src->val);
+	operand_write(id_dest, &t2);
+	rtl_set_OF(&tzero);
+	rtl_set_CF(&tzero);
+	rtl_update_ZFSF(&t2, id_dest->width);
+  print_asm_template2(or);
+}
+
+make_EHelper(sar) {
+  // unnecessary to update CF and OF in NEMU
 	if (id_dest->width == 1) {
-		id_dest->val = (int32_t)(int8_t)id_dest->val;
+		id_dest->val = (int8_t)id_dest->val;
 	}
-	rtl_push(&id_dest->val);
-  print_asm_template1(push);
-}
-
-make_EHelper(pop) {
-	rtl_pop(&t0);
-	operand_write(id_dest, &t0);
-  print_asm_template1(pop);
-}
-
-make_EHelper(pusha) {
-	t0 = cpu.esp;
-	rtl_push(&cpu.eax);
-  rtl_push(&cpu.ecx);
-  rtl_push(&cpu.edx);
-  rtl_push(&cpu.ebx);
-  rtl_push(&t0);
-  rtl_push(&cpu.ebp);
-  rtl_push(&cpu.esi);
-  rtl_push(&cpu.edi);
-
-	print_asm("pusha");
-}
-
-make_EHelper(popa) {
-	rtl_pop(&cpu.edi);
-	rtl_pop(&cpu.esi);
-  rtl_pop(&cpu.ebp);
-  rtl_pop(&t0);
-  rtl_pop(&cpu.ebx);
-  rtl_pop(&cpu.edx);
-  rtl_pop(&cpu.ecx);
-  rtl_pop(&cpu.eax);
-
-  print_asm("popa");
-}
-
-make_EHelper(leave) {
-	rtl_mv(&cpu.esp, &cpu.ebp);
-	rtl_pop(&cpu.ebp);
-
-  print_asm("leave");
-}
-
-make_EHelper(cltd) {
-  if (decoding.is_operand_size_16) {
-  	rtl_lr(&t0, R_AX, 2);
-		if ((int32_t)(int16_t)(uint16_t)t0 < 0) {
-			rtl_addi(&t1, &tzero, 0xffff);
-			rtl_sr(R_DX, 2, &t1);
-		}
-		else {
-			rtl_sr(R_DX, 2, &tzero);
-		}
+	else if (id_dest->width == 2) {
+		id_dest->val = (int16_t)id_dest->val;
 	}
-  else {
-    rtl_lr(&t0, R_EAX, 4);
-		if ((int32_t)t0 < 0) {
-			rtl_addi(&t1, &tzero, 0xffffffff);
-			rtl_sr(R_EDX, 4, &t1);
-		}
-		else {
-			rtl_sr(R_EDX, 4, &tzero);
-		}
-  }
+	rtl_sar(&t2, &id_dest->val, &id_src->val);
+	operand_write(id_dest, &t2);
+	rtl_update_ZFSF(&t2, id_dest->width);
 
-  print_asm(decoding.is_operand_size_16 ? "cwtl" : "cltd");
+  print_asm_template2(sar);
 }
 
-make_EHelper(cwtl) {
-  if (decoding.is_operand_size_16) {
-  	rtl_lr(&t0, R_AL, 1);
-    t0 = (int16_t)(int8_t)(uint8_t)t0;
-    rtl_sr(R_AX, 2, &t0);
-	}
-  else {
-	  rtl_lr(&t0, R_AX, 2);
-    t0 = (int32_t)(int16_t)(uint16_t)t0;
-    rtl_sr(R_EAX, 4, &t0);
-	}
+make_EHelper(shl) {
+  // unnecessary to update CF and OF in NEMU
+	rtl_shl(&t2, &id_dest->val, &id_src->val);
+	operand_write(id_dest, &t2);
+	rtl_update_ZFSF(&t2, id_dest->width);
 
-  print_asm(decoding.is_operand_size_16 ? "cbtw" : "cwtl");
+  print_asm_template2(shl);
 }
 
-make_EHelper(movsx) {
-  id_dest->width = decoding.is_operand_size_16 ? 2 : 4;
-  rtl_sext(&t2, &id_src->val, id_src->width);
+make_EHelper(shr) {
+  // unnecessary to update CF and OF in NEMU
+	rtl_shr(&t2, &id_dest->val, &id_src->val);
+	operand_write(id_dest, &t2);
+	rtl_update_ZFSF(&t2, id_dest->width);
+
+  print_asm_template2(shr);
+}
+
+make_EHelper(rol) {
+	rtl_shl(&t0, &id_dest->val, &id_src->val);
+	rtl_shri(&t1, &id_dest->val, id_dest->width * 8 - id_src->val);
+	rtl_or(&t2, &t1, &t0);
+	operand_write(id_dest, &t2);
+
+	print_asm_template2(rol);
+}
+
+make_EHelper(setcc) {
+  uint8_t subcode = decoding.opcode & 0xf;
+  rtl_setcc(&t2, subcode);
   operand_write(id_dest, &t2);
-  print_asm_template2(movsx);
+
+  print_asm("set%s %s", get_cc_name(subcode), id_dest->str);
 }
 
-make_EHelper(movzx) {
-  id_dest->width = decoding.is_operand_size_16 ? 2 : 4;
-  operand_write(id_dest, &id_src->val);
-  print_asm_template2(movzx);
-}
-
-make_EHelper(lea) {
-  rtl_li(&t2, id_src->addr);
-  operand_write(id_dest, &t2);
-  print_asm_template2(lea);
+make_EHelper(not) {
+	rtl_not(&id_dest->val);
+	operand_write(id_dest, &id_dest->val);
+	
+  print_asm_template1(not);
 }
