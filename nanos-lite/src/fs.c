@@ -33,11 +33,11 @@ static Finfo file_table[] __attribute__((used)) = {
 #define NR_FILES (sizeof(file_table) / sizeof(file_table[0]))
 
 extern size_t fs_filesz(int fd);
-extern size_t events_read(void *buf, size_t len);
-extern void dispinfo_read(void *buf, off_t offset, size_t len);
 extern void ramdisk_read(void *buf, off_t offset, size_t len);
 extern void ramdisk_write(const void *buf, off_t offset, size_t len);
+extern void dispinfo_read(void *buf, off_t offset, size_t len);
 extern void fb_write(const void *buf, off_t offset, size_t len);
+extern size_t events_read(void *buf, size_t len);
 
 void init_fs()
 {
@@ -72,37 +72,40 @@ int fs_open(const char *pathname, int flags, int mode)
 ssize_t fs_read(int fd, void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
-
-  if(file_table[fd].open_offset >= fs_size || len == 0)
-		return 0;
-  if (file_table[fd].open_offset + len > fs_size) // overfill detect
-    len = fs_size - file_table[fd].open_offset;
-
+  Log("fs_read, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
   switch (fd)
   {
-  case FD_STDIN:
   case FD_STDOUT:
-  case FD_STDERR:
-    return 0;
+  case FD_FB:
+    Log("fs_read fd_fb\n");
+    break;
   case FD_EVENTS:
     len = events_read((void *)buf, len);
     break;
   case FD_DISPINFO:
+    if (file_table[fd].open_offset >= file_table[fd].size)
+      return 0;
+    if (file_table[fd].open_offset + len > file_table[fd].size)
+      len = file_table[fd].size - file_table[fd].open_offset;
     dispinfo_read(buf, file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
   default:
+    if (file_table[fd].open_offset >= fs_size || len == 0)
+      return 0;
+    if (file_table[fd].open_offset + len > fs_size)
+      len = fs_size - file_table[fd].open_offset;
     ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
   }
-  Log("File read over");
   return len;
 }
 
 ssize_t fs_write(int fd, const void *buf, size_t len)
 {
   ssize_t fs_size = fs_filesz(fd);
+  Log("fs_write, fd = %d, file size = %d, len = %d, file open_offset = %d\n", fd, fs_size, len, file_table[fd].open_offset);
   switch (fd)
   {
   case FD_STDOUT:
@@ -134,31 +137,32 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
 
 off_t fs_lseek(int fd, off_t offset, int whence)
 {
-  off_t new_offset = -1;
-  switch (whence)
-  {
-  case SEEK_SET:
-    if (offset >= 0 && offset <= file_table[fd].size)
-    {
-      file_table[fd].open_offset = offset;
-      new_offset = file_table[fd].open_offset;
-    }
-    break;
-  case SEEK_CUR:
-    if ((offset + file_table[fd].open_offset >= 0) && (offset + file_table[fd].open_offset <= file_table[fd].size))
-    {
-      file_table[fd].open_offset += offset;
-      new_offset = file_table[fd].open_offset;
-    }
-    break;
-  case SEEK_END:
-    file_table[fd].open_offset = file_table[fd].size + offset;
-    new_offset = file_table[fd].open_offset;
-    break;
-  }
-  Log("File seek over");
-  return new_offset;
+  off_t result = -1;
+
+	switch(whence) {
+		case SEEK_SET:
+			if (offset >= 0 && offset <= file_table[fd].size) {
+				file_table[fd].open_offset = offset;
+				result = file_table[fd].open_offset = offset;
+			}
+			break;
+		case SEEK_CUR:
+			if ((offset + file_table[fd].open_offset >= 0) && 
+					(offset + file_table[fd].open_offset <= file_table[fd].size)) {
+				file_table[fd].open_offset += offset;
+				result = file_table[fd].open_offset;
+			}
+			break;
+		case SEEK_END:
+			file_table[fd].open_offset = file_table[fd].size + offset;
+			result = file_table[fd].open_offset;
+			break;
+	}
+
+	Log("fs_lseek over");
+	return result;
 }
+
 
 int fs_close(int fd)
 {

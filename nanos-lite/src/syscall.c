@@ -1,64 +1,53 @@
 #include "common.h"
 #include "syscall.h"
-#include "fs.h"
+
+extern char _end;
+extern ssize_t fs_read(int fd, void *buf, size_t len);
+extern ssize_t fs_write(int fd, const void *buf, size_t len);
+extern int fs_open(const char *pathname, int flags, int mode);
+extern off_t fs_lseek(int fd, off_t offset, int whence);
+extern int fs_close(int fd);
 
 _RegSet *do_syscall(_RegSet *r)
 {
-  uintptr_t a[4];
+  uintptr_t a[4], result = -1;
   a[0] = SYSCALL_ARG1(r);
+  a[1] = SYSCALL_ARG2(r);
+  a[2] = SYSCALL_ARG3(r);
+  a[3] = SYSCALL_ARG4(r);
 
   switch (a[0])
   {
   case SYS_none:
-    SYSCALL_ARG1(r) = 1;
+    result = 1;
     break;
   case SYS_exit:
-    _halt(SYSCALL_ARG2(r));
+    _halt(a[1]);
     break;
   case SYS_write:
-    {
-    int fd = (int)SYSCALL_ARG2(r);
-    char *buf = (char *)SYSCALL_ARG3(r);
-    int len = (int)SYSCALL_ARG4(r);
-    SYSCALL_ARG1(r) = fs_write(fd, buf, len);
+    //result = sys_write(a[1], (void *)a[2], a[3]);
+    result = fs_write(a[1], (void *)a[2], a[3]);
     break;
-    }
+  case SYS_read:
+    result = fs_read(a[1], (void *)a[2], a[3]);
+    break;
   case SYS_brk:
-    SYSCALL_ARG1(r) = 0;
+    result = 0;
     break;
   case SYS_open:
-    {
-    const char *pathname = (const char *)SYSCALL_ARG2(r);
-    int flags = (int)SYSCALL_ARG3(r);
-    int mode = (int)SYSCALL_ARG4(r);
-    SYSCALL_ARG1(r) = fs_open(pathname, flags, mode);
+    result = fs_open((char *)a[1], a[2], a[3]);
     break;
-    }
-  case SYS_read:
-    {
-    int fd = (int)SYSCALL_ARG2(r);
-    char *buf = (char *)SYSCALL_ARG3(r);
-    int len = (int)SYSCALL_ARG4(r);
-    SYSCALL_ARG1(r) = fs_read(fd, buf, len);
-    break;
-    }
   case SYS_close:
-    {
-    int fd = (int)SYSCALL_ARG2(r);
-    SYSCALL_ARG1(r) = fs_close(fd);
+    result = fs_close(a[1]);
     break;
-    } 
   case SYS_lseek:
-    {
-    int fd = (int)SYSCALL_ARG2(r);
-    off_t offset = (off_t)SYSCALL_ARG3(r);
-    int whence = (int)SYSCALL_ARG4(r);
-    SYSCALL_ARG1(r) = fs_lseek(fd, offset, whence);
+    result = fs_lseek(a[1], a[2], a[3]);
     break;
-    }
   default:
     panic("Unhandled syscall ID = %d", a[0]);
   }
+
+  SYSCALL_ARG1(r) = result;
 
   return NULL;
 }
