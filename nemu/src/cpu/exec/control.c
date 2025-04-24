@@ -43,6 +43,13 @@ make_EHelper(ret)
   print_asm("ret");
 }
 
+make_EHelper(reti) {
+  rtl_pop(&decoding.jmp_eip);
+  decoding.is_jmp = 1;
+  cpu.esp+=id_dest->val;
+  print_asm("ret");
+}
+
 make_EHelper(call_rm)
 {
   rtl_push(eip);
