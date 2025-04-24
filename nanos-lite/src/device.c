@@ -11,6 +11,7 @@ size_t events_read(void *buf, size_t len)
 {
   int key = _read_key();
   bool down = false;
+  // Log("key = %d\n", key);
   if (key & 0x8000)
   {
     key ^= 0x8000;
@@ -23,7 +24,7 @@ size_t events_read(void *buf, size_t len)
   }
   else
   {
-    sprintf(buf, "%s %s\n", down ? "key down" : "key up", keyname[key]);
+    sprintf(buf, "%s %s\n", down ? "kd" : "ku", keyname[key]);
   }
   return strlen(buf);
 }
