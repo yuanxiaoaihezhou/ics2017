@@ -78,11 +78,26 @@ ssize_t fs_read(int fd, void *buf, size_t len)
   if (file_table[fd].open_offset + len > fs_size) // overfill detect
     len = fs_size - file_table[fd].open_offset;
 
-  ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
-	printf("after ramdisk_read!\n");
-	file_table[fd].open_offset += len;
-	printf("%d\n", file_table[fd].open_offset);
-	return len;
+  switch (fd)
+  {
+  case FD_STDIN:
+  case FD_STDOUT:
+  case FD_STDERR:
+    return 0;
+  case FD_EVENTS:
+    len = events_read((void *)buf, len);
+    break;
+  case FD_DISPINFO:
+    dispinfo_read(buf, file_table[fd].open_offset, len);
+    file_table[fd].open_offset += len;
+    break;
+  default:
+    ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
+    file_table[fd].open_offset += len;
+    break;
+  }
+  Log("File read over");
+  return len;
 }
 
 ssize_t fs_write(int fd, const void *buf, size_t len)
@@ -106,6 +121,8 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
       return 0;
     if (file_table[fd].open_offset + len > fs_size)
       len = fs_size - file_table[fd].open_offset;
+
+    Log("Start ramdisk_write");
     ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, len);
     file_table[fd].open_offset += len;
     break;
