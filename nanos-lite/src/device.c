@@ -11,11 +11,7 @@ size_t events_read(void *buf, size_t len)
 {
   int key = _read_key();
   bool down = false;
-  if (key & 0x8000)
-  {
-    key ^= 0x8000;
-    down = true;
-  }
+
   if (key == _KEY_NONE)
   {
     unsigned long t = _uptime();
@@ -24,9 +20,8 @@ size_t events_read(void *buf, size_t len)
   else
   {
     sprintf(buf, "%s %s\n", down ? "kd" : "ku", keyname[key]);
-    Log("Get key: %d %s %s\n", key, keyname[key], down ? "down" : "up");
   }
-  return strlen(buf); 
+  return strlen(buf);
 }
 
 static char dispinfo[128] __attribute__((used));
