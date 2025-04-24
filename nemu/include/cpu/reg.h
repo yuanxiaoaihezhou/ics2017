@@ -46,8 +46,8 @@ typedef struct {
      uint32_t eflags;
    };
   struct{
-    uint32_t base;
     uint16_t limit;
+		uint32_t base;
   } idtr;
 } CPU_state;
 
