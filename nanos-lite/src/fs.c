@@ -32,6 +32,7 @@ static Finfo file_table[] __attribute__((used)) = {
 
 #define NR_FILES (sizeof(file_table) / sizeof(file_table[0]))
 
+extern size_t fs_filesz(int fd);
 extern size_t events_read(void *buf, size_t len);
 extern void dispinfo_read(void *buf, off_t offset, size_t len);
 extern void ramdisk_read(void *buf, off_t offset, size_t len);
