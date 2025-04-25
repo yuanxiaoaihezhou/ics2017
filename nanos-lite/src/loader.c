@@ -12,7 +12,7 @@ extern int fs_close(int fd);
 uintptr_t loader(_Protect *as, const char *filename) {
   int fd = fs_open(filename, 0, 0);
   Log("fd = %d\n",fd);
-  Log("filename = %d\n",filename);
+  Log("filename = %s\n",filename);
   fs_read(fd, DEFAULT_ENTRY, fs_filesz(fd));
   fs_close(fd);
   
