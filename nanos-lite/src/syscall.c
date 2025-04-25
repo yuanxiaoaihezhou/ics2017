@@ -8,6 +8,24 @@ extern int fs_open(const char *pathname, int flags, int mode);
 extern off_t fs_lseek(int fd, off_t offset, int whence);
 extern int fs_close(int fd);
 
+static inline _RegSet* sys_write(_RegSet *r)
+{
+  int fd = (int)SYSCALL_ARG2(r);
+  char *buf = (char *)SYSCALL_ARG3(r);
+  int len = (int)SYSCALL_ARG4(r);
+
+  if (fd == 1 || fd == 2)
+  {
+    for (int i = 0; i < len; i++)
+    {
+      _putc(buf[i]);
+    }
+    SYSCALL_ARG1(r) = len;
+  }
+
+  return NULL;
+}
+
 _RegSet *do_syscall(_RegSet *r)
 {
   uintptr_t a[4], result = -1;
@@ -25,7 +43,8 @@ _RegSet *do_syscall(_RegSet *r)
     _halt(a[1]);
     break;
   case SYS_write:
-    result = fs_write(a[1], (void *)a[2], a[3]);
+    sys_write(r);
+    // result = fs_write(a[1], (void *)a[2], a[3]);
     break;
   case SYS_read:
     result = fs_read(a[1], (void *)a[2], a[3]);
