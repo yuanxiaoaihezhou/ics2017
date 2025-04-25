@@ -43,8 +43,8 @@ _RegSet *do_syscall(_RegSet *r)
     _halt(a[1]);
     break;
   case SYS_write:
-    sys_write(r);
-    // result = fs_write(a[1], (void *)a[2], a[3]);
+    // sys_write(r);
+    result = fs_write(a[1], (void *)a[2], a[3]);
     break;
   case SYS_read:
     result = fs_read(a[1], (void *)a[2], a[3]);
