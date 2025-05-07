@@ -15,21 +15,26 @@ void free_page(void *p) {
 }
 
 /* The brk() system call handler. */
+#define K4(va) (((uint32_t)(va)+0xfff) & ~0xfff)//使得虚拟地址以4K对齐，否则仙剑运行会出现错误
 int mm_brk(uint32_t new_brk) {
-  if (current->cur_brk == 0) {
+  if(current->cur_brk == 0)
+  {
     current->cur_brk = current->max_brk = new_brk;
-  } else {
-    if (new_brk > current->max_brk) {
-      // 计算当前最大brk的4K对齐地址
-      uint32_t aligned_brk = (current->max_brk + 0xfff) & ~0xfff;
-      // 逐页映射虚拟地址空间
-      for (uint32_t brk = aligned_brk; brk < new_brk; brk += PGSIZE) {
-        void* pg = new_page();  // 获取新的物理页
-        _map(&current->as, (void*)brk, pg);  // 建立映射
+  }
+  else
+  {
+    if(new_brk > current->max_brk)
+    {
+      uint32_t brk = K4(current->max_brk);
+      while(brk<new_brk)
+      {
+        _map(&current->as,(void*)brk,new_page());//new_page获得的物理页地址一定是按4K对齐的，
+                                                //按照我的_map函数的实现方式，brk也一定要按4K对齐！
+        brk += PGSIZE;
       }
-      current->max_brk = new_brk;  // 更新历史最大brk
+      current->max_brk = new_brk;
     }
-  current->cur_brk = new_brk;  // 更新当前brk
+    current->cur_brk = new_brk;
   }
   return 0;
 }
