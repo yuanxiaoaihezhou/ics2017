@@ -46,50 +46,34 @@ paddr_t page_translate(vaddr_t addr, int rw) {
     if (!cpu.cr0.protect_enable || !cpu.cr0.paging)
         return addr;
 
-    const uint32_t PDE_PRESENT = 0x1;
-    const uint32_t PDE_ACCESSED = 0x20;
-    const uint32_t PTE_PRESENT = 0x1;
-    const uint32_t PTE_ACCESSED = 0x20;
-    const uint32_t PTE_DIRTY = 0x40;
+    const uint32_t offset = addr & 0xFFF;  
+    PDE *const pd = (PDE *)(uintptr_t)(cpu.cr3.val & 0xFFFFF000);  // 获取页目录基址
+    const int pd_index = (addr >> 22) & 0x3FF; 
 
-    paddr_t pd_base = cpu.cr3.val & 0xfffff000;
-    int pd_index = (addr >> 22) & 0x3ff;
-    paddr_t pde_addr = pd_base + (pd_index << 2); // pd_index * 4
+    // 处理页目录项
+    PDE pde;
+    pde.val = paddr_read((paddr_t)&pd[pd_index], 4);
+    if (!pde.present)
+        Assert(0, "pde present bit is 0!");
 
-    uint32_t pde_val = paddr_read(pde_addr, 4);
-    if (!(pde_val & PDE_PRESENT))
-        Assert(0, "PDE present bit is 0!");
+    PTE *const pt = (PTE *)(uintptr_t)(pde.val & ~0xFFF);  // 页表基址
+    const uint32_t old_pde_val = pde.val;
+    pde.accessed = 1;
+    if (pde.val != old_pde_val)  
+        paddr_write((paddr_t)&pd[pd_index], 4, pde.val);
 
-    if (!(pde_val & PDE_ACCESSED)) {
-        pde_val |= PDE_ACCESSED;
-        paddr_write(pde_addr, 4, pde_val);
-    }
+    // 处理页表项
+    const int pt_index = (addr >> 12) & 0x3FF;  // 页表索引
+    PTE pte;
+    pte.val = paddr_read((paddr_t)&pt[pt_index], 4);
+    if (!pte.present)
+        Assert(0, "pte present bit is 0!");
 
-    paddr_t pt_base = pde_val & 0xfffff000;
-    int pt_index = (addr >> 12) & 0x3ff;
-    paddr_t pte_addr = pt_base + (pt_index << 2); // pt_index * 4
+    const uint32_t old_pte_val = pte.val;
+    pte.accessed = 1;
+    if (rw) pte.dirty = 1;       
+    if (pte.val != old_pte_val)  
+        paddr_write((paddr_t)&pt[pt_index], 4, pte.val);
 
-    uint32_t pte_val = paddr_read(pte_addr, 4);
-    if (!(pte_val & PTE_PRESENT))
-        Assert(0, "PTE present bit is 0!");
-
-    paddr_t phys_addr = (pte_val & 0xfffff000) | (addr & 0xfff);
-
-    uint32_t new_pte_val = pte_val;
-    bool need_write = false;
-    
-    if (!(pte_val & PTE_ACCESSED)) {
-        new_pte_val |= PTE_ACCESSED;
-        need_write = true;
-    }
-    if (rw && !(pte_val & PTE_DIRTY)) {
-        new_pte_val |= PTE_DIRTY;
-        need_write = true;
-    }
-    
-    if (need_write) {
-        paddr_write(pte_addr, 4, new_pte_val);
-    }
-
-    return phys_addr;
+    return (pte.val & ~0xFFF) | offset;  
 }
