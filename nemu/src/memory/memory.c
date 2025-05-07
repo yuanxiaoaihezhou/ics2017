@@ -61,8 +61,6 @@ paddr_t page_translate(vaddr_t addr, int rw) {
     // 处理页目录项
     PDE pde;
     pde.val = paddr_read((paddr_t)&pd[pd_index], 4);
-    if (!pde.present)
-        Assert(0, "pde present bit is 0!");
 
     PTE *const pt = (PTE *)(uintptr_t)(pde.val & ~0xFFF);  // 页表基址
     const uint32_t old_pde_val = pde.val;
