@@ -32,7 +32,6 @@ uintptr_t loader(_Protect *as, const char *filename)
                                  : PGSIZE;                // 完整页
     fs_read(fd, pa, read_size);
   }
-
   fs_close(fd);
 
   return (uintptr_t)DEFAULT_ENTRY;

@@ -51,7 +51,7 @@ _RegSet *do_syscall(_RegSet *r)
     result = fs_read(a[1], (void *)a[2], a[3]);
     break;
   case SYS_brk:
-    result = mm_brk(a[2]);
+    result = mm_brk(a[1]);
     break;
   case SYS_open:
     result = fs_open((char *)a[1], a[2], a[3]);
