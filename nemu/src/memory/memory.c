@@ -51,33 +51,37 @@ void vaddr_write(vaddr_t addr, int len, uint32_t data) {
 }
 
 paddr_t page_translate(vaddr_t addr, int rw) {
-  if (!cpu.cr0.protect_enable || !cpu.cr0.paging)
-    return addr;
+    if (!cpu.cr0.protect_enable || !cpu.cr0.paging)
+        return addr;
 
-  PDE* pd = (PDE*)(cpu.cr3.val & 0xfffff000);
-  int pd_index = (addr >> 22) & 0x3ff;
-  PTE* pt;
-  
-  PDE pde;
-  pde.val = paddr_read((paddr_t)&pd[pd_index], 4);
-  if (!pde.present)
-    Assert(0, "pde present bit is 0!");
+    const uint32_t offset = addr & 0xFFF;  
+    PDE *const pd = (PDE *)(uintptr_t)(cpu.cr3.val & 0xFFFFF000);  // 获取页目录基址
+    const int pd_index = (addr >> 22) & 0x3FF; 
 
-  pt = (PTE*)(pde.val & ~0xfff);
-  pde.accessed = 1;
-  paddr_write((paddr_t)&pd[pd_index], 4, pde.val);
+    // 处理页目录项
+    PDE pde;
+    pde.val = paddr_read((paddr_t)&pd[pd_index], 4);
+    if (!pde.present)
+        Assert(0, "pde present bit is 0!");
 
-  int pt_index = (addr >> 12) & 0x3ff;
-  PTE pte;
-  pte.val = paddr_read((paddr_t)&pt[pt_index], 4);
-  if (!pte.present)
-    Assert(0, "pte present bit is 0!");
+    PTE *const pt = (PTE *)(uintptr_t)(pde.val & ~0xFFF);  // 页表基址
+    const uint32_t old_pde_val = pde.val;
+    pde.accessed = 1;
+    if (pde.val != old_pde_val)  
+        paddr_write((paddr_t)&pd[pd_index], 4, pde.val);
 
-  addr = (pte.val & ~0xfff) | (addr & 0xfff);
-  pte.accessed = 1;
-  if (rw)
-    pte.dirty = 1;
-  paddr_write((paddr_t)&pt[pt_index], 4, pte.val);
+    // 处理页表项
+    const int pt_index = (addr >> 12) & 0x3FF;  // 页表索引
+    PTE pte;
+    pte.val = paddr_read((paddr_t)&pt[pt_index], 4);
+    if (!pte.present)
+        Assert(0, "pte present bit is 0!");
 
-  return (paddr_t)addr;
+    const uint32_t old_pte_val = pte.val;
+    pte.accessed = 1;
+    if (rw) pte.dirty = 1;       
+    if (pte.val != old_pte_val)  
+        paddr_write((paddr_t)&pt[pt_index], 4, pte.val);
+
+    return (pte.val & ~0xFFF) | offset;  
 }

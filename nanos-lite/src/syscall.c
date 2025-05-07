@@ -7,6 +7,7 @@ extern ssize_t fs_write(int fd, const void *buf, size_t len);
 extern int fs_open(const char *pathname, int flags, int mode);
 extern off_t fs_lseek(int fd, off_t offset, int whence);
 extern int fs_close(int fd);
+extern int mm_brk(uint32_t new_brk);
 
 static inline _RegSet* sys_write(_RegSet *r)
 {
@@ -50,7 +51,7 @@ _RegSet *do_syscall(_RegSet *r)
     result = fs_read(a[1], (void *)a[2], a[3]);
     break;
   case SYS_brk:
-    result = 0;
+    result = mm_brk(a[2]);
     break;
   case SYS_open:
     result = fs_open((char *)a[1], a[2], a[3]);
