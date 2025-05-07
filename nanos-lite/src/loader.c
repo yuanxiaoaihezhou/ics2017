@@ -10,7 +10,8 @@ extern size_t fs_filesz(int fd);
 extern int fs_open(const char *pathname, int flags, int mode);
 extern int fs_close(int fd);
 
-uintptr_t loader(_Protect *as, const char *filename) {
+uintptr_t loader(_Protect *as, const char *filename)
+{
   // pa3
   // int fd = fs_open(filename, 0, 0);
   // Log("fd = %d\n",fd);
@@ -19,23 +20,20 @@ uintptr_t loader(_Protect *as, const char *filename) {
   // fs_close(fd);
 
   int fd = fs_open(filename, 0, 0);
-  int bytes = fs_filesz(fd);
-  int n = bytes / PGSIZE;
-  int m = bytes % PGSIZE;
-  int i;
-  void *pa;
+  const size_t file_size = fs_filesz(fd);
+  const size_t total_pages = file_size / PGSIZE + (file_size % PGSIZE != 0);
 
-  for (i = 0; i < n; i++) {
-    pa = new_page();
+  for (size_t i = 0; i < total_pages; ++i)
+  {
+    void *pa = new_page();
     _map(as, DEFAULT_ENTRY + i * PGSIZE, pa);
-    fs_read(fd, pa, PGSIZE);
+    const size_t read_size = (i == total_pages - 1)
+                                 ? file_size - i * PGSIZE // 最后一页
+                                 : PGSIZE;                // 完整页
+    fs_read(fd, pa, read_size);
   }
 
-  pa = new_page();
-  _map(as, DEFAULT_ENTRY + i * PGSIZE, pa);
-  fs_read(fd, pa, m);
-
   fs_close(fd);
-  
+
   return (uintptr_t)DEFAULT_ENTRY;
 }
