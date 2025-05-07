@@ -20,20 +20,22 @@ uintptr_t loader(_Protect *as, const char *filename)
   // fs_close(fd);
 
   int fd = fs_open(filename, 0, 0);
-  const size_t file_size = fs_filesz(fd);
-  const size_t total_pages = file_size / PGSIZE + (file_size % PGSIZE != 0);
+  int bytes = fs_filesz(fd);
+  int n = bytes / PGSIZE;
+  int m = bytes % PGSIZE;
+  int i;
+  void *pa;
 
-  for (size_t i = 0; i < total_pages; ++i)
-  {
-    void *pa = new_page();
+  for (i = 0; i < n; i++) {
+    pa = new_page();
     _map(as, DEFAULT_ENTRY + i * PGSIZE, pa);
-    const size_t read_size = (i == total_pages - 1)
-                                 ? file_size - i * PGSIZE // 最后一页
-                                 : PGSIZE;                // 完整页
-    fs_read(fd, pa, read_size);
+    fs_read(fd, pa, PGSIZE);
   }
 
-  fs_close(fd);
+  pa = new_page();
+  _map(as, DEFAULT_ENTRY + i * PGSIZE, pa);
+  fs_read(fd, pa, m);
 
+  fs_close(fd);
   return (uintptr_t)DEFAULT_ENTRY;
 }
