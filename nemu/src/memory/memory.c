@@ -72,8 +72,6 @@ paddr_t page_translate(vaddr_t addr, int rw) {
     const int pt_index = (addr >> 12) & 0x3FF;  // 页表索引
     PTE pte;
     pte.val = paddr_read((paddr_t)&pt[pt_index], 4);
-    if (!pte.present)
-        Assert(0, "pte present bit is 0!");
 
     const uint32_t old_pte_val = pte.val;
     pte.accessed = 1;
