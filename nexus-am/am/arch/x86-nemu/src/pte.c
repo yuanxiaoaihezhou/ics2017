@@ -1,5 +1,4 @@
 #include <x86.h>
-#include <assert.h>
 
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
@@ -88,5 +87,29 @@ void _unmap(_Protect *p, void *va) {
 }
 
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
-  return NULL;
+  int arg1 = 0;
+  char *arg2 = NULL;
+  uintptr_t stack_top = (uintptr_t)ustack.end;
+
+  stack_top -= 4;
+  *((uint32_t*)stack_top) = (uint32_t)arg2;
+
+  stack_top -= 4;
+  *((uint32_t*)stack_top) = (uint32_t)arg2;
+
+  stack_top -= 4;
+  *((uint32_t*)stack_top) = (uint32_t)arg1;
+
+  stack_top -= 4;
+  *((uint32_t*)stack_top) = (uint32_t)arg1;
+
+  _RegSet tf = {
+    .eip = (uintptr_t)entry,      
+    .cs = 0x8,                  
+    .eflags = 0x2,              
+  };
+  uintptr_t tf_addr = (uintptr_t)ustack.end - sizeof(_RegSet);
+  *(_RegSet*)tf_addr = tf;
+
+  return (_RegSet*)tf_addr;
 }
