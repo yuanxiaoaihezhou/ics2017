@@ -1,6 +1,8 @@
 #include "cpu/exec.h"
 #include "all-instr.h"
 
+void raise_intr(uint8_t NO, vaddr_t ret_addr);
+
 typedef struct {
   DHelper decode;
   EHelper execute;
@@ -247,6 +249,11 @@ void exec_wrapper(bool print_flag) {
 #endif
 
   update_eip();
+  if (cpu.INTR & cpu.IF) {
+    cpu.INTR = false;
+    raise_intr(0x32, cpu.eip);
+    update_eip();
+  }
 
 #ifdef DIFF_TEST
   void difftest_step(uint32_t);

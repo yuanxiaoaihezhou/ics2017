@@ -101,7 +101,7 @@ _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *cons
   *((uint32_t *)stack_top) = (uint32_t)arg1;
 
   _RegSet tf;
-  tf.eflags = 0x2;
+  tf.eflags = 0x2 | FL_IF;
   tf.cs = 0x8;
   tf.eip = (uintptr_t)entry;
   uintptr_t tf_addr = (uintptr_t)(ustack.end - sizeof(_RegSet));
