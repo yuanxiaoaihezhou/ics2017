@@ -33,7 +33,7 @@ _RegSet*schedule(_RegSet *prev){
     current = &pcb[0];
 
   static int cnt = 0;
-  if(cnt == 1000){
+  if(cnt == 5000){
     current = &pcb[1];
     cnt = 0;
   } else{
