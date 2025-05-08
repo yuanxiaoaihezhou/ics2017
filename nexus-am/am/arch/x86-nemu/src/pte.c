@@ -101,7 +101,7 @@ _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *cons
     .cs = 0x8,                  
     .eflags = 0x2,              
   };
-  uintptr_t tf_addr = (uintptr_t)ustack.end - sizeof(_RegSet) - 16;
+  uintptr_t tf_addr = (uintptr_t)(ustack.end - sizeof(_RegSet) - 16);
   *(_RegSet*)tf_addr = tf;
 
   return (_RegSet*)tf_addr;
