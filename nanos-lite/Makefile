@@ -33,3 +33,6 @@ src/syscall.h: $(NAVY_HOME)/libs/libos/src/syscall.h
 
 update: update-ramdisk-fsimg src/syscall.h
 	@touch src/initrd.S
+	
+count:
+	@find ./ -type f \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 wc -l | tail -1
