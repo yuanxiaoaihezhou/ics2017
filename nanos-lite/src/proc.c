@@ -26,11 +26,22 @@ void load_prog(const char *filename) {
   pcb[i].tf = _umake(&pcb[i].as, stack, stack, (void *)entry, NULL, NULL);
 }
 
-_RegSet*schedule(_RegSet*prev){
+_RegSet*schedule(_RegSet *prev){
   if (current != NULL)
     current->tf = prev;
+  else
+    current = &pcb[0];
 
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  static int cnt = 0;
+  if(cnt == 1000){
+    current = &pcb[1];
+    cnt = 0;
+  } else{
+    current = &pcb[0];
+    cnt++;
+  }
+
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
   _switch(&current->as);
   return current->tf;
  }
