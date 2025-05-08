@@ -96,13 +96,12 @@ _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *cons
   memcpy((void*)ustack.end-12,(void*)arg1,4);
   memcpy((void*)ustack.end-16,(void*)arg1,4);
 
-  _RegSet tf = {
-    .eip = (uintptr_t)entry,      
-    .cs = 0x8,                  
-    .eflags = 0x2,              
-  };
-  void *tf_addr = (void *)(ustack.end - sizeof(_RegSet) - 16);
-  memcpy(tf_addr, (void *)&tf, sizeof(_RegSet));
+   _RegSet tf;
+  tf.eflags = 0x2;
+  tf.cs = 0x8;
+  tf.eip = (uintptr_t)entry;
+  uintptr_t tf_addr = (uintptr_t)(ustack.end - sizeof(_RegSet) - 16);
+  *(_RegSet*)tf_addr = tf;
 
   return (_RegSet*)tf_addr;
 }
