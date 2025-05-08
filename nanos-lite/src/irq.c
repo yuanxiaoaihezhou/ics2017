@@ -8,7 +8,7 @@ static _RegSet *do_event(_Event e, _RegSet *r)
   {
   case _EVENT_SYSCALL:
     return do_syscall(r);
-  case(_EVENT_TRAP):
+  case _EVENT_TRAP:
     Log("_EVENT_TRAP\n");
     return schedule(r);
   default:
