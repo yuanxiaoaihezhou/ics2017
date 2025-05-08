@@ -89,18 +89,22 @@ void _unmap(_Protect *p, void *va) {
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
   int arg1 = 0;
   char *arg2 = NULL;
+  uintptr_t stack_top = (uintptr_t)ustack.end;
 
-  extern void *memcpy(void *,const void*,int);
-  memcpy((void*)ustack.end-4,(void*)arg2,4);
-  memcpy((void*)ustack.end-8,(void*)arg2,4);
-  memcpy((void*)ustack.end-12,(void*)arg1,4);
-  memcpy((void*)ustack.end-16,(void*)arg1,4);
+  stack_top -= 4;
+  *((uint32_t *)stack_top) = (uint32_t)arg2;
+  stack_top -= 4;
+  *((uint32_t *)stack_top) = (uint32_t)arg2;
+  stack_top -= 4;
+  *((uint32_t *)stack_top) = (uint32_t)arg1;
+  stack_top -= 4;
+  *((uint32_t *)stack_top) = (uint32_t)arg1;
 
-   _RegSet tf;
+  _RegSet tf;
   tf.eflags = 0x2;
   tf.cs = 0x8;
   tf.eip = (uintptr_t)entry;
-  uintptr_t tf_addr = (uintptr_t)(ustack.end - sizeof(_RegSet) - 16);
+  uintptr_t tf_addr = (uintptr_t)(ustack.end - sizeof(_RegSet));
   *(_RegSet*)tf_addr = tf;
 
   return (_RegSet*)tf_addr;
