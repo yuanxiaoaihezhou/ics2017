@@ -7,7 +7,7 @@ static const char *keyname[256] __attribute__((used)) = {
     [_KEY_NONE] = "NONE",
     _KEYS(NAME)};
 
-bool current_game = 0;
+bool current_game = 1;
 extern off_t fs_lseek(int fd, off_t offset, int whence);
 size_t events_read(void *buf, size_t len)
 {
