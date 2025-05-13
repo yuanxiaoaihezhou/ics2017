@@ -7,6 +7,8 @@ static const char *keyname[256] __attribute__((used)) = {
     [_KEY_NONE] = "NONE",
     _KEYS(NAME)};
 
+bool current_game = 0;
+extern off_t fs_lseek(int fd, off_t offset, int whence);
 size_t events_read(void *buf, size_t len)
 {
   int key = _read_key();
@@ -25,6 +27,10 @@ size_t events_read(void *buf, size_t len)
   else
   {
     sprintf(buf, "%s %s\n", down ? "kd" : "ku", keyname[key]);
+    if(key == 13 && down) {
+      current_game = (current_game == 0 ? 1 : 0);
+      fs_lseek(5,0,0);
+    }
   }
   return strlen(buf);
 }
