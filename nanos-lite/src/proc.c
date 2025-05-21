@@ -35,7 +35,7 @@ _RegSet* schedule(_RegSet *prev) {
     current = &pcb[0];
   }
   static int num = 0;
-  if(num == 100){
+  if(num == 2){
     current = &pcb[1];
     num = 0;
   }
