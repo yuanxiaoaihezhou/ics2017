@@ -87,18 +87,20 @@ void _unmap(_Protect *p, void *va) {
 }
 
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
-  int arg1 = 0;
-  char *arg2 = NULL;
-  uintptr_t stack_top = (uintptr_t)ustack.end;
-
-  stack_top -= 4;
-  *((uint32_t *)stack_top) = (uint32_t)arg2;
-  stack_top -= 4;
-  *((uint32_t *)stack_top) = (uint32_t)arg2;
-  stack_top -= 4;
-  *((uint32_t *)stack_top) = (uint32_t)arg1;
-  stack_top -= 4;
-  *((uint32_t *)stack_top) = (uint32_t)arg1;
+  //int arg1 = 0;
+  //char *arg2 = NULL;
+  //uintptr_t stack_top = (uintptr_t)ustack.end;
+  uint32_t *ptr = ustack.end;
+  for (int i = 0; i < 8; i++) 
+		*ptr-- = 0x0; 
+  //stack_top -= 4;
+  //*((uint32_t *)stack_top) = (uint32_t)arg2;
+  //stack_top -= 4;
+  //*((uint32_t *)stack_top) = (uint32_t)arg2;
+  //stack_top -= 4;
+  //*((uint32_t *)stack_top) = (uint32_t)arg1;
+  //stack_top -= 4;
+  //*((uint32_t *)stack_top) = (uint32_t)arg1;
 
   _RegSet tf;
   tf.eflags = 0x2 | FL_IF;
