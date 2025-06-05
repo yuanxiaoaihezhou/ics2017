@@ -17,8 +17,8 @@ FLOAT F_div_F(FLOAT a, FLOAT b) {
 	int res = a / b;
 	a %= b;
 	for (int i = 0; i < 16; i++) {
-		a = a * 2;
-		res = res * 2;
+		a <<= 1;
+		res <<= 1;
 		if (a >= b) {
 			a -= b;
 			res++;
