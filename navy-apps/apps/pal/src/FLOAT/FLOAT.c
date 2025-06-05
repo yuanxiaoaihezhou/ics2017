@@ -3,7 +3,17 @@
 #include <assert.h>
 
 FLOAT F_mul_F(FLOAT a, FLOAT b) {
-   return ((uint64_t)a * b) >> 16;
+  int32_t a_left = a >> 16;       
+  uint32_t a_right = a & 0xFFFF;    
+  int32_t b_left = b >> 16;
+  uint32_t b_right = b & 0xFFFF;
+
+  int32_t result = (a_left * b_left << 16)
+                 + (a_left * b_right)
+                 + (a_right * b_left)
+                 + ((a_right * b_right) >> 16);
+
+  return result;
 }
 
 FLOAT F_div_F(FLOAT a, FLOAT b) {
