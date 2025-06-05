@@ -11,7 +11,7 @@ static _RegSet *do_event(_Event e, _RegSet *r)
     // return schedule(r);
     break;
   case _EVENT_TRAP:
-    Log("_EVENT_TRAP\n");
+    // Log("_EVENT_TRAP\n");
     // return NULL;
     return schedule(r);
   case(_EVENT_IRQ_TIME):

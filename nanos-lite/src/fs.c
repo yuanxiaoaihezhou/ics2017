@@ -135,6 +135,8 @@ ssize_t fs_write(int fd, const void *buf, size_t len)
 
 off_t fs_lseek(int fd, off_t offset, int whence)
 {
+  if (fd < 3)
+    return 0;
   off_t result = -1;
 
 	switch(whence) {
