@@ -2,6 +2,7 @@
 #define __FLOAT_H__
 
 #include "assert.h"
+#include <stdio.h>
 
 typedef int FLOAT;
 
